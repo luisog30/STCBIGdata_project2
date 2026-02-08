@@ -1,0 +1,301 @@
+﻿clock;period;actionType;subType;personId;x;y;scoreHome;scoreAway;isFieldGoal;teamTricode;playerName;shotResult;shotDistance;assistPlayerNameInitial;assistPersonId;blockPlayerName;blockPersonId;gameId;value;YEAR;area;areaDetail
+PT12M00.00S;1;period;start;0;null;null;0;0;0;null;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M58.00S;1;jumpball;recovered;0;null;null;0;0;0;BKN;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M50.00S;1;turnover;out-of-bounds;201,599;null;null;0;0;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M38.00S;1;foul;personal;202,681;null;null;0;0;0;BKN;Irving;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M38.00S;1;freethrow;1 of 2;201,939;null;null;0;1;0;GSW;Curry;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M38.00S;1;freethrow;2 of 2;201,939;null;null;0;2;0;GSW;Curry;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT11M22.00S;1;2pt;Jump Shot;202,681;71.041.393;49.578.738;2;2;1;BKN;Irving;Made;21.97;K. Durant;201,142;null;null;22,000,001;null;2,02;null;null
+PT11M11.00S;1;2pt;DUNK;1,630,164;5.338.371;4.810.815;2;4;1;GSW;Wiseman;Made;0.98;A. Wiggins;203,952;null;null;22,000,001;null;2,02;null;null
+PT10M49.00S;1;3pt;Jump Shot;201,142;66.967.806;45.902.267;5;4;1;BKN;Durant;Made;25.88;J. Harris;203,925;null;null;22,000,001;null;2,02;null;null
+PT10M31.00S;1;3pt;Jump Shot;203,952;10.463.206;301.011;5;4;1;GSW;Wiggins;Missed;23.93;null;null;null;null;22,000,001;null;2,02;null;null
+PT10M25.00S;1;rebound;defensive;203,925;null;null;5;4;0;BKN;Harris;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT10M23.00S;1;2pt;Jump Shot;201,142;92.986.202;59.627.757;7;4;1;BKN;Durant;Made;4.99;null;null;null;null;22,000,001;null;2,02;null;null
+PT10M16.00S;1;3pt;Jump Shot;201,939;31.093.955;74.088.542;7;4;1;GSW;Curry;Missed;26.83;null;null;null;null;22,000,001;null;2,02;null;null
+PT10M16.00S;1;rebound;defensive;201,599;null;null;7;4;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT10M09.00S;1;3pt;Jump Shot;203,925;71.567.017;20.412.071;10;4;1;BKN;Harris;Made;26.08;S. Dinwiddie;203,915;null;null;22,000,001;null;2,02;null;null
+PT09M57.00S;1;3pt;Jump Shot;203,952;13.616.951;3.745.404;10;4;1;GSW;Wiggins;Missed;24.33;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M51.00S;1;rebound;defensive;202,681;null;null;10;4;0;BKN;Irving;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M49.00S;1;3pt;Jump Shot;203,915;69.990.145;73.843.444;10;4;1;BKN;Dinwiddie;Missed;25.87;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M44.00S;1;rebound;defensive;1,626,162;null;null;10;4;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M38.00S;1;2pt;Layup;201,939;836.071;44.186.581;10;6;1;GSW;Curry;Made;3.91;K. Oubre Jr.;1,626,162;null;null;22,000,001;null;2,02;null;null
+PT09M30.00S;1;3pt;Jump Shot;203,925;85.890.276;97.127.757;10;6;1;BKN;Harris;Missed;24.88;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M25.00S;1;rebound;defensive;1,630,164;null;null;10;6;0;GSW;Wiseman;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M18.00S;1;2pt;Jump Shot;1,630,164;28.860.053;56.686.581;10;6;1;GSW;Wiseman;Missed;22.13;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M14.00S;1;rebound;defensive;202,681;null;null;10;6;0;BKN;Irving;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M10.00S;1;3pt;Jump Shot;202,681;69.070.302;66.000.306;10;6;1;BKN;Irving;Missed;25.13;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M07.00S;1;rebound;defensive;1,630,164;null;null;10;6;0;GSW;Wiseman;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT09M01.00S;1;2pt;Jump Shot;1,629,672;23.603.811;45.657.169;10;6;1;GSW;Paschall;Missed;17.08;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M56.00S;1;rebound;defensive;201,599;null;null;10;6;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M46.00S;1;2pt;Jump Shot;201,142;83.787.779;71.392.463;12;6;1;BKN;Durant;Made;14.64;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M46.00S;1;foul;personal;1,630,164;null;null;12;6;0;GSW;Wiseman;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M46.00S;1;freethrow;1 of 1;201,142;null;null;13;6;0;BKN;Durant;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M30.00S;1;foul;personal;201,599;null;null;13;6;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M30.00S;1;freethrow;1 of 2;203,952;null;null;13;7;0;GSW;Wiggins;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M30.00S;1;freethrow;2 of 2;203,952;null;null;13;8;0;GSW;Wiggins;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M18.00S;1;2pt;Jump Shot;201,142;82.736.531;47.617.953;13;8;1;BKN;Durant;Missed;11.04;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M16.00S;1;rebound;offensive;0;null;null;13;8;0;BKN;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M16.00S;1;stoppage;out-of-bounds;0;null;null;13;8;0;null;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M14.00S;1;3pt;Jump Shot;203,915;8.510.184;95.657.169;13;8;1;BKN;Dinwiddie;Missed;24.45;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M09.00S;1;rebound;offensive;203,925;null;null;13;8;0;BKN;Harris;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT08M07.00S;1;3pt;Jump Shot;202,681;71.567.017;22.372.855;16;8;1;BKN;Irving;Made;25.54;J. Harris;203,925;null;null;22,000,001;null;2,02;null;null
+PT07M57.00S;1;foul;offensive;1,626,162;null;null;16;8;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M57.00S;1;turnover;offensive foul;1,626,162;null;null;16;8;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M47.00S;1;2pt;Layup;201,142;92.329.172;50.804.228;16;8;1;BKN;Durant;Missed;2;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M44.00S;1;rebound;defensive;1,630,164;null;null;16;8;0;GSW;Wiseman;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M32.00S;1;2pt;Layup;203,952;5.206.965;46.882.659;16;8;1;GSW;Wiggins;Missed;1.6;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M28.00S;1;rebound;defensive;203,925;null;null;16;8;0;BKN;Harris;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M20.00S;1;2pt;DUNK;201,142;93.511.827;51.294.424;18;8;1;BKN;Durant;Made;1.07;D. Jordan;201,599;null;null;22,000,001;null;2,02;null;null
+PT07M20.00S;1;timeout;full;0;null;null;18;8;0;GSW;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M20.00S;1;substitution;out;1,630,164;null;null;18;8;0;GSW;Wiseman;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M20.00S;1;substitution;in;1,626,172;null;null;18;8;0;GSW;Looney;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M06.00S;1;2pt;Layup;1,629,672;5.863.995;55.215.993;18;8;1;GSW;Paschall;Missed;2.62;null;null;Jordan;201,599;22,000,001;null;2,02;null;null
+PT07M06.00S;1;block;null;201,599;null;null;18;8;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT07M01.00S;1;rebound;defensive;201,599;null;null;18;8;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M58.00S;1;2pt;Layup;202,681;88.649.803;43.451.287;20;8;1;BKN;Irving;Made;6.33;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M41.00S;1;3pt;Jump Shot;1,626,162;7.835.085;42.356;20;8;1;GSW;Oubre Jr.;Missed;22.98;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M40.00S;1;rebound;offensive;1,629,672;null;null;20;8;0;GSW;Paschall;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M40.00S;1;foul;personal;202,681;null;null;20;8;0;BKN;Irving;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M40.00S;1;freethrow;1 of 2;1,629,672;null;null;20;8;0;GSW;Paschall;Missed;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M40.00S;1;rebound;offensive;0;null;null;20;8;0;GSW;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M40.00S;1;freethrow;2 of 2;1,629,672;null;null;20;9;0;GSW;Paschall;Made;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M23.00S;1;3pt;Jump Shot;202,681;90.883.706;4.970.895;23;9;1;BKN;Irving;Made;22.75;S. Dinwiddie;203,915;null;null;22,000,001;null;2,02;null;null
+PT06M15.00S;1;3pt;Jump Shot;201,939;30.174.113;67.961.091;23;9;1;GSW;Curry;Missed;24.79;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M11.00S;1;rebound;defensive;203,915;null;null;23;9;0;BKN;Dinwiddie;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M00.00S;1;turnover;out-of-bounds;203,925;null;null;23;9;0;BKN;Harris;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M00.00S;1;substitution;out;201,599;null;null;23;9;0;BKN;Jordan;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M00.00S;1;substitution;out;203,952;null;null;23;9;0;GSW;Wiggins;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M00.00S;1;substitution;in;1,628,386;null;null;23;9;0;BKN;Allen;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT06M00.00S;1;substitution;in;203,145;null;null;23;9;0;GSW;Bazemore;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M47.00S;1;3pt;Jump Shot;1,626,162;31.750.986;47.863.051;23;9;1;GSW;Oubre Jr.;Missed;24.62;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M43.00S;1;rebound;defensive;201,142;null;null;23;9;0;BKN;Durant;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M34.00S;1;foul;personal;203,145;null;null;23;9;0;GSW;Bazemore;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M25.00S;1;3pt;Jump Shot;203,925;84.707.622;95.902.267;23;9;1;BKN;Harris;Missed;24.7;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M20.00S;1;rebound;defensive;203,145;null;null;23;9;0;GSW;Bazemore;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M17.00S;1;2pt;Layup;203,145;5.338.371;49.088.542;23;11;1;GSW;Bazemore;Made;0.51;null;null;null;null;22,000,001;null;2,02;null;null
+PT05M03.00S;1;3pt;Jump Shot;203,925;91.540.736;3.990.502;26;11;1;BKN;Harris;Made;23.16;J. Allen;1,628,386;null;null;22,000,001;null;2,02;null;null
+PT04M52.00S;1;2pt;Jump Shot;201,939;28.465.834;3.560.815;26;13;1;GSW;Curry;Made;22.68;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M41.00S;1;2pt;Jump Shot;202,681;82.079.501;3.683.364;28;13;1;BKN;Irving;Made;13.34;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;jumpball;recovered;1,626,162;null;null;28;13;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;out;203,925;null;null;28;13;0;BKN;Harris;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;out;203,915;null;null;28;13;0;BKN;Dinwiddie;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;in;1,629,013;null;null;28;13;0;BKN;Shamet;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;in;1,627,747;null;null;28;13;0;BKN;LeVert;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;out;1,629,672;null;null;28;13;0;GSW;Paschall;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M28.00S;1;substitution;in;1,627,814;null;null;28;13;0;GSW;Lee;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M21.00S;1;2pt;Layup;1,626,162;6.258.213;48.843.444;28;13;1;GSW;Oubre Jr.;Missed;0.86;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M19.00S;1;rebound;offensive;1,626,162;null;null;28;13;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M18.00S;1;2pt;DUNK;1,626,162;7.703.679;48.598.346;28;13;1;GSW;Oubre Jr.;Missed;2.11;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M17.00S;1;rebound;defensive;0;null;null;28;13;0;BKN;null;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M08.00S;1;2pt;Jump Shot;202,681;78.662.943;57.912.071;28;13;1;BKN;Irving;Missed;15.33;null;null;null;null;22,000,001;null;2,02;null;null
+PT04M02.00S;1;rebound;defensive;203,145;null;null;28;13;0;GSW;Bazemore;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M57.00S;1;3pt;Jump Shot;203,145;25.574.901;81.931.679;28;13;1;GSW;Bazemore;Missed;24.66;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M54.00S;1;rebound;offensive;1,626,162;null;null;28;13;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M52.00S;1;2pt;DUNK;1,626,162;8.623.522;4.810.815;28;15;1;GSW;Oubre Jr.;Made;3.01;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M42.00S;1;turnover;lost ball;201,142;null;null;28;15;0;BKN;Durant;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M42.00S;1;steal;null;1,626,162;null;null;28;15;0;GSW;Oubre Jr.;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M36.00S;1;2pt;DUNK;1,626,162;5.075.558;49.578.738;28;17;1;GSW;Oubre Jr.;Made;0.52;S. Curry;201,939;null;null;22,000,001;null;2,02;null;null
+PT03M14.00S;1;2pt;Layup;201,142;94.168.857;42.470.895;28;17;1;BKN;Durant;Missed;3.77;null;null;null;null;22,000,001;null;2,02;null;null
+PT03M13.00S;1;rebound;defensive;1,627,814;null;null;28;17;0;GSW;Lee;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT02M59.00S;1;2pt;Jump Shot;1,626,172;1.663.929;27.029.718;28;17;1;GSW;Looney;Missed;15.49;null;null;null;null;22,000,001;null;2,02;null;null
+PT02M59.00S;1;rebound;defensive;201,142;null;null;28;17;0;BKN;Durant;null;null;null;null;null;null;22,000,001;null;2,02;null;null
+PT02M51.00S;1;foul;personal;1,626,172;;;28;17;0;GSW;Looney;;;;;;;22,000,001;;2,02;;
+PT02M51.00S;1;timeout;full;0;;;28;17;0;BKN;;;;;;;;22,000,001;;2,02;;
+PT02M51.00S;1;substitution;out;201,142;;;28;17;0;BKN;Durant;;;;;;;22,000,001;;2,02;;
+PT02M51.00S;1;substitution;in;201,145;;;28;17;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT02M51.00S;1;freethrow;1 of 2;202,681;;;29;17;0;BKN;Irving;Made;;;;;;22,000,001;;2,02;;
+PT02M51.00S;1;freethrow;2 of 2;202,681;;;30;17;0;BKN;Irving;Made;;;;;;22,000,001;;2,02;;
+PT02M47.00S;1;turnover;bad pass;1,626,162;;;30;17;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT02M47.00S;1;steal;;201,145;;;30;17;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT02M42.00S;1;3pt;Jump Shot;1,627,747;69.595.926;29.970.895;33;17;1;BKN;LeVert;Made;25.39;;;;;22,000,001;;2,02;;
+PT02M34.00S;1;turnover;bad pass;1,626,172;;;33;17;0;GSW;Looney;;;;;;;22,000,001;;2,02;;
+PT02M34.00S;1;steal;;1,628,386;;;33;17;0;BKN;Allen;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;3pt;Jump Shot;202,681;66.704.993;60.363.051;36;17;1;BKN;Irving;Made;26.56;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;timeout;full;0;;;36;17;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;substitution;out;202,681;;;36;17;0;BKN;Irving;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;substitution;out;1,626,162;;;36;17;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;substitution;in;1,627,752;;;36;17;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;1;substitution;in;203,952;;;36;17;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT02M12.00S;1;2pt;Hook;1,626,172;5.995.401;51.539.522;36;17;1;GSW;Looney;Missed;0.86;;;;;22,000,001;;2,02;;
+PT02M10.00S;1;rebound;defensive;1,627,747;;;36;17;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT02M03.00S;1;foul;offensive;1,627,747;;;36;17;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT02M03.00S;1;turnover;offensive foul;1,627,747;;;36;17;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT02M03.00S;1;substitution;out;1,626,172;;;36;17;0;GSW;Looney;;;;;;;22,000,001;;2,02;;
+PT02M03.00S;1;substitution;in;1,627,737;;;36;17;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT01M50.00S;1;2pt;Hook;203,952;14.536.794;46.637.561;36;17;1;GSW;Wiggins;Missed;8.58;;;;;22,000,001;;2,02;;
+PT01M49.00S;1;rebound;offensive;0;;;36;17;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT01M37.00S;1;2pt;Jump Shot;201,939;836.071;49.823.836;36;17;1;GSW;Curry;Missed;2.61;;;;;22,000,001;;2,02;;
+PT01M34.00S;1;rebound;offensive;201,939;;;36;17;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT01M34.00S;1;2pt;Layup;201,939;5.995.401;47.372.855;36;17;1;GSW;Curry;Missed;1.37;;;;;22,000,001;;2,02;;
+PT01M32.00S;1;rebound;defensive;1,628,386;;;36;17;0;BKN;Allen;;;;;;;22,000,001;;2,02;;
+PT01M25.00S;1;foul;personal;201,939;;;36;17;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT01M25.00S;1;freethrow;1 of 2;1,628,386;;;37;17;0;BKN;Allen;Made;;;;;;22,000,001;;2,02;;
+PT01M25.00S;1;freethrow;2 of 2;1,628,386;;;38;17;0;BKN;Allen;Made;;;;;;22,000,001;;2,02;;
+PT01M17.00S;1;2pt;Layup;1,627,737;7.703.679;48.598.346;38;19;1;GSW;Chriss;Made;2.11;S. Curry;201,939;;;22,000,001;;2,02;;
+PT00M59.30S;1;2pt;Layup;1,627,747;92.854.796;46.882.659;40;19;1;BKN;LeVert;Made;2.14;;;;;22,000,001;;2,02;;
+PT00M52.00S;1;3pt;Jump Shot;1,627,737;30.436.925;64.774.816;40;22;1;GSW;Chriss;Made;24.5;S. Curry;201,939;;;22,000,001;;2,02;;
+PT00M33.80S;1;2pt;Jump Shot;1,627,747;83.262.155;56.441.483;40;22;1;BKN;LeVert;Missed;10.96;;;;;22,000,001;;2,02;;
+PT00M28.60S;1;rebound;defensive;1,627,814;;;40;22;0;GSW;Lee;;;;;;;22,000,001;;2,02;;
+PT00M23.20S;1;3pt;Jump Shot;201,939;31.488.173;35.117.953;40;25;1;GSW;Curry;Made;25.46;;;;;22,000,001;;2,02;;
+PT00M02.20S;1;turnover;lost ball;1,627,747;;;40;25;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT00M02.20S;1;steal;;201,939;;;40;25;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT00M00.00S;1;3pt;Jump Shot;201,939;53.038.765;36.343.444;40;25;1;GSW;Curry;Missed;45.13;;;;;22,000,001;;2,02;;
+PT00M00.00S;1;rebound;offensive;0;;;40;25;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT00M00.00S;1;period;end;0;;;40;25;0;;;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;out;1,627,814;;;40;25;0;GSW;Lee;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;out;203,145;;;40;25;0;GSW;Bazemore;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;out;201,939;;;40;25;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;in;1,629,672;;;40;25;0;GSW;Paschall;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;in;202,954;;;40;25;0;GSW;Wanamaker;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;substitution;in;1,629,673;;;40;25;0;GSW;Poole;;;;;;;22,000,001;;2,02;;
+PT12M00.00S;2;period;start;0;;;40;25;0;;;;;;;;;22,000,001;;2,02;;
+PT11M40.00S;2;3pt;Jump Shot;1,627,737;8.623.522;3.990.502;40;25;1;GSW;Chriss;Missed;23.18;;;;;22,000,001;;2,02;;
+PT11M35.00S;2;rebound;defensive;1,627,752;;;40;25;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT11M25.00S;2;foul;personal;1,627,737;;;40;25;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT11M14.00S;2;2pt;Jump Shot;1,627,747;82.736.531;47.372.855;42;25;1;BKN;LeVert;Made;11.06;;;;;22,000,001;;2,02;;
+PT11M01.00S;2;2pt;Layup;203,952;6.389.619;50.314.032;42;25;1;GSW;Wiggins;Missed;0.78;;;Prince;1,627,752;22,000,001;;2,02;;
+PT11M01.00S;2;block;;1,627,752;;;42;25;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT10M57.00S;2;rebound;defensive;1,627,747;;;42;25;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT10M55.00S;2;2pt;Jump Shot;1,627,747;84.444.809;55.215.993;42;25;1;BKN;LeVert;Missed;9.73;;;;;22,000,001;;2,02;;
+PT10M48.00S;2;rebound;defensive;1,629,673;;;42;25;0;GSW;Poole;;;;;;;22,000,001;;2,02;;
+PT10M45.00S;2;turnover;bad pass;203,952;;;42;25;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT10M45.00S;2;steal;;1,627,747;;;42;25;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT10M39.00S;2;2pt;Layup;201,145;94.300.263;50.804.228;44;25;1;BKN;Green;Made;0.41;C. LeVert;1,627,747;;;22,000,001;;2,02;;
+PT10M21.00S;2;foul;personal;1,627,752;;;44;25;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT10M21.00S;2;freethrow;1 of 2;203,952;;;44;25;0;GSW;Wiggins;Missed;;;;;;22,000,001;;2,02;;
+PT10M21.00S;2;rebound;offensive;0;;;44;25;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT10M21.00S;2;freethrow;2 of 2;203,952;;;44;26;0;GSW;Wiggins;Made;;;;;;22,000,001;;2,02;;
+PT10M03.00S;2;2pt;Jump Shot;1,627,747;89.306.833;56.931.679;44;26;1;BKN;LeVert;Missed;5.92;;;;;22,000,001;;2,02;;
+PT10M00.00S;2;rebound;defensive;1,627,737;;;44;26;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT09M53.00S;2;2pt;Jump Shot;1,629,673;17.033.509;53.745.404;44;28;1;GSW;Poole;Made;10.92;;;;;22,000,001;;2,02;;
+PT09M43.00S;2;turnover;out-of-bounds;1,629,013;;;44;28;0;BKN;Shamet;;;;;;;22,000,001;;2,02;;
+PT09M34.00S;2;turnover;traveling;203,952;;;44;28;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT09M34.00S;2;substitution;out;201,145;;;44;28;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT09M34.00S;2;substitution;in;203,915;;;44;28;0;BKN;Dinwiddie;;;;;;;22,000,001;;2,02;;
+PT09M16.00S;2;3pt;Jump Shot;1,629,013;74.195.138;17.715.993;44;28;1;BKN;Shamet;Missed;24.94;;;;;22,000,001;;2,02;;
+PT09M12.00S;2;rebound;defensive;203,952;;;44;28;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT09M00.00S;2;2pt;Layup;1,627,737;8.097.898;52.029.718;44;28;1;GSW;Chriss;Missed;2.57;;;Allen;1,628,386;22,000,001;;2,02;;
+PT09M00.00S;2;block;;1,628,386;;;44;28;0;BKN;Allen;;;;;;;22,000,001;;2,02;;
+PT09M00.00S;2;rebound;offensive;0;;;44;28;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT09M00.00S;2;stoppage;out-of-bounds;0;;;44;28;0;;;;;;;;;22,000,001;;2,02;;
+PT08M57.00S;2;2pt;Layup;203,952;5.206.965;50.068.934;44;30;1;GSW;Wiggins;Made;0.36;B. Wanamaker;202,954;;;22,000,001;;2,02;;
+PT08M41.00S;2;3pt;Jump Shot;1,629,013;79.319.974;9.872.855;44;30;1;BKN;Shamet;Missed;24.57;;;;;22,000,001;;2,02;;
+PT08M38.00S;2;rebound;defensive;1,627,737;;;44;30;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT08M33.00S;2;2pt;Layup;1,629,672;6.258.213;49.823.836;44;30;1;GSW;Paschall;Missed;0.64;;;Allen;1,628,386;22,000,001;;2,02;;
+PT08M33.00S;2;block;;1,628,386;;;44;30;0;BKN;Allen;;;;;;;22,000,001;;2,02;;
+PT08M29.00S;2;rebound;defensive;203,915;;;44;30;0;BKN;Dinwiddie;;;;;;;22,000,001;;2,02;;
+PT08M25.00S;2;3pt;Jump Shot;1,627,747;74.326.544;15.019.914;47;30;1;BKN;LeVert;Made;25.74;J. Allen;1,628,386;;;22,000,001;;2,02;;
+PT08M13.00S;2;turnover;bad pass;202,954;;;47;30;0;GSW;Wanamaker;;;;;;;22,000,001;;2,02;;
+PT08M13.00S;2;steal;;1,627,752;;;47;30;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;foul;personal;1,629,673;;;47;30;0;GSW;Poole;;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;freethrow;1 of 2;1,627,752;;;47;30;0;BKN;Prince;Missed;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;rebound;offensive;0;;;47;30;0;BKN;;;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;substitution;out;1,628,386;;;47;30;0;BKN;Allen;;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;substitution;in;201,599;;;47;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT08M12.00S;2;freethrow;2 of 2;1,627,752;;;48;30;0;BKN;Prince;Made;;;;;;22,000,001;;2,02;;
+PT08M00.00S;2;2pt;Jump Shot;203,952;13.748.357;63.794.424;48;30;1;GSW;Wiggins;Missed;10.32;;;;;22,000,001;;2,02;;
+PT07M57.00S;2;rebound;defensive;1,627,747;;;48;30;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;foul;personal;1,627,737;;;48;30;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;freethrow;1 of 2;1,627,747;;;49;30;0;BKN;LeVert;Made;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;substitution;out;1,629,672;;;49;30;0;GSW;Paschall;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;substitution;out;1,627,737;;;49;30;0;GSW;Chriss;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;substitution;in;1,630,164;;;49;30;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;substitution;in;1,629,308;;;49;30;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT07M48.00S;2;freethrow;2 of 2;1,627,747;;;50;30;0;BKN;LeVert;Made;;;;;;22,000,001;;2,02;;
+PT07M25.00S;2;2pt;Jump Shot;203,952;17.690.539;46.637.561;50;30;1;GSW;Wiggins;Missed;11.5;;;;;22,000,001;;2,02;;
+PT07M21.00S;2;rebound;defensive;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT07M16.00S;2;turnover;bad pass;203,915;;;50;30;0;BKN;Dinwiddie;;;;;;;22,000,001;;2,02;;
+PT07M16.00S;2;steal;;1,630,164;;;50;30;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT06M56.00S;2;2pt;Jump Shot;1,629,673;2.578.844;26.049.326;50;30;1;GSW;Poole;Missed;12.31;;;;;22,000,001;;2,02;;
+PT06M52.00S;2;rebound;defensive;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;foul;offensive;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;turnover;offensive foul;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;timeout;full;0;;;50;30;0;BKN;;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;out;1,627,752;;;50;30;0;BKN;Prince;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;out;1,629,013;;;50;30;0;BKN;Shamet;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;out;1,627,747;;;50;30;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;in;201,142;;;50;30;0;BKN;Durant;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;in;202,681;;;50;30;0;BKN;Irving;;;;;;;22,000,001;;2,02;;
+PT06M49.00S;2;substitution;in;203,925;;;50;30;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT06M38.00S;2;2pt;Layup;1,630,164;9.937.582;4.051.011;50;30;1;GSW;Wiseman;Missed;6.26;;;;;22,000,001;;2,02;;
+PT06M36.00S;2;rebound;defensive;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT06M22.00S;2;turnover;lost ball;201,599;;;50;30;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT06M22.00S;2;steal;;1,630,164;;;50;30;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT06M19.00S;2;foul;offensive;1,630,164;;;50;30;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT06M19.00S;2;turnover;offensive foul;1,630,164;;;50;30;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT06M19.00S;2;substitution;out;203,952;;;50;30;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT06M19.00S;2;substitution;in;201,939;;;50;30;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT06M05.00S;2;2pt;Layup;201,142;89.701.051;32.666.973;50;30;1;BKN;Durant;Missed;9.74;;;Toscano-Anderson;1,629,308;22,000,001;;2,02;;
+PT06M05.00S;2;block;;1,629,308;;;50;30;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT06M05.00S;2;rebound;offensive;0;;;50;30;0;BKN;;;;;;;;22,000,001;;2,02;;
+PT06M05.00S;2;stoppage;out-of-bounds;0;;;50;30;0;;;;;;;;;22,000,001;;2,02;;
+PT06M05.00S;2;substitution;out;1,629,673;;;50;30;0;GSW;Poole;;;;;;;22,000,001;;2,02;;
+PT06M05.00S;2;substitution;in;1,626,162;;;50;30;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT06M03.00S;2;2pt;Jump Shot;201,142;83.919.185;22.127.757;50;30;1;BKN;Durant;Missed;17.08;;;;;22,000,001;;2,02;;
+PT05M59.00S;2;rebound;offensive;201,142;;;50;30;0;BKN;Durant;;;;;;;22,000,001;;2,02;;
+PT05M53.00S;2;3pt;Jump Shot;202,681;66.442.181;42.715.993;50;30;1;BKN;Irving;Missed;26.54;;;;;22,000,001;;2,02;;
+PT05M49.00S;2;rebound;defensive;1,626,162;;;50;30;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT05M44.00S;2;3pt;Jump Shot;201,939;2.859.724;22.863.051;50;33;1;GSW;Curry;Made;25.53;J. Toscano-Anderson;1,629,308;;;22,000,001;;2,02;;
+PT05M29.00S;2;2pt;Jump Shot;203,925;77.086.071;65.265.012;50;33;1;BKN;Harris;Missed;17.99;;;;;22,000,001;;2,02;;
+PT05M27.00S;2;rebound;defensive;1,629,308;;;50;33;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT05M19.00S;2;2pt;Layup;201,939;5.075.558;47.127.757;50;33;1;GSW;Curry;Missed;1.52;;;;;22,000,001;;2,02;;
+PT05M17.00S;2;rebound;defensive;201,599;;;50;33;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT05M09.00S;2;2pt;Layup;203,915;94.037.451;50.068.934;50;33;1;BKN;Dinwiddie;Missed;0.35;;;;;22,000,001;;2,02;;
+PT05M09.00S;2;rebound;defensive;0;;;50;33;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT05M09.00S;2;foul;personal;202,681;;;50;33;0;BKN;Irving;;;;;;;22,000,001;;2,02;;
+PT04M57.00S;2;2pt;Layup;1,630,164;5.995.401;48.353.248;50;35;1;GSW;Wiseman;Made;0.91;S. Curry;201,939;;;22,000,001;;2,02;;
+PT04M39.00S;2;3pt;Jump Shot;203,925;9.206.636;96.392.463;50;35;1;BKN;Harris;Missed;23.31;;;;;22,000,001;;2,02;;
+PT04M36.00S;2;rebound;offensive;203,925;;;50;35;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT04M35.00S;2;2pt;Layup;203,925;94.037.451;50.804.228;52;35;1;BKN;Harris;Made;0.53;;;;;22,000,001;;2,02;;
+PT04M24.00S;2;2pt;Jump Shot;1,626,162;18.084.757;58.157.169;52;35;1;GSW;Oubre Jr.;Missed;12.44;;;;;22,000,001;;2,02;;
+PT04M21.00S;2;rebound;defensive;203,925;;;52;35;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT04M17.00S;2;turnover;out-of-bounds;203,915;;;52;35;0;BKN;Dinwiddie;;;;;;;22,000,001;;2,02;;
+PT04M01.00S;2;3pt;Jump Shot;1,626,162;23.209.593;86.343.444;52;35;1;GSW;Oubre Jr.;Missed;24.59;;;;;22,000,001;;2,02;;
+PT03M58.00S;2;rebound;defensive;201,599;;;52;35;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT03M52.00S;2;2pt;Layup;202,681;89.044.021;4.810.815;54;35;1;BKN;Irving;Made;5.14;;;;;22,000,001;;2,02;;
+PT03M40.00S;2;2pt;Layup;201,939;5.863.995;51.294.424;54;37;1;GSW;Curry;Made;0.7;;;;;22,000,001;;2,02;;
+PT03M34.00S;2;turnover;out-of-bounds;202,681;;;54;37;0;BKN;Irving;;;;;;;22,000,001;;2,02;;
+PT03M34.00S;2;substitution;out;201,599;;;54;37;0;BKN;Jordan;;;;;;;22,000,001;;2,02;;
+PT03M34.00S;2;substitution;out;203,915;;;54;37;0;BKN;Dinwiddie;;;;;;;22,000,001;;2,02;;
+PT03M34.00S;2;substitution;in;1,627,747;;;54;37;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT03M34.00S;2;substitution;in;201,145;;;54;37;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT03M22.00S;2;2pt;Layup;201,939;7.046.649;47.617.953;54;37;1;GSW;Curry;Missed;1.81;;;LeVert;1,627,747;22,000,001;;2,02;;
+PT03M22.00S;2;block;;1,627,747;;;54;37;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT03M22.00S;2;rebound;defensive;1,627,747;;;54;37;0;BKN;LeVert;;;;;;;22,000,001;;2,02;;
+PT03M18.00S;2;2pt;DUNK;201,145;93.249.014;50.804.228;56;37;1;BKN;Green;Made;1.17;K. Irving;202,681;;;22,000,001;;2,02;;
+PT03M18.00S;2;timeout;full;0;;;56;37;0;GSW;;;;;;;;22,000,001;;2,02;;
+PT03M18.00S;2;substitution;out;1,629,308;;;56;37;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT03M18.00S;2;substitution;in;203,952;;;56;37;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT03M07.00S;2;2pt;Layup;1,630,164;7.440.867;53.745.404;56;39;1;GSW;Wiseman;Made;2.55;S. Curry;201,939;;;22,000,001;;2,02;;
+PT02M53.00S;2;2pt;Jump Shot;201,142;907.523;71.637.561;58;39;1;BKN;Durant;Made;11.35;K. Irving;202,681;;;22,000,001;;2,02;;
+PT02M36.00S;2;2pt;Layup;1,626,162;5.338.371;50.314.032;58;39;1;GSW;Oubre Jr.;Missed;0.28;;;Harris;203,925;22,000,001;;2,02;;
+PT02M36.00S;2;block;;203,925;;;58;39;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT02M34.00S;2;rebound;offensive;1,626,162;;;58;39;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT02M33.00S;2;2pt;Layup;1,626,162;5.206.965;50.804.228;58;39;1;GSW;Oubre Jr.;Missed;0.54;;;;;22,000,001;;2,02;;
+PT02M31.00S;2;rebound;offensive;1,626,162;;;58;39;0;GSW;Oubre Jr.;;;;;;;22,000,001;;2,02;;
+PT02M29.00S;2;3pt;Jump Shot;203,952;27.545.992;75.314.032;58;42;1;GSW;Wiggins;Made;24.21;K. Oubre Jr.;1,626,162;;;22,000,001;;2,02;;
+PT02M20.00S;2;foul;offensive;203,925;;;58;42;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT02M20.00S;2;turnover;offensive foul;203,925;;;58;42;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT02M20.00S;2;substitution;out;202,954;;;58;42;0;GSW;Wanamaker;;;;;;;22,000,001;;2,02;;
+PT02M20.00S;2;substitution;in;1,629,308;;;58;42;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT02M08.00S;2;turnover;bad pass;201,939;;;58;42;0;GSW;Curry;;;;;;;22,000,001;;2,02;;
+PT02M08.00S;2;steal;;201,142;;;58;42;0;BKN;Durant;;;;;;;22,000,001;;2,02;;
+PT02M04.00S;2;3pt;Jump Shot;1,627,747;88.518.397;4.480.699;58;42;1;BKN;LeVert;Missed;23.42;;;;;22,000,001;;2,02;;
+PT02M01.00S;2;rebound;defensive;1,630,164;;;58;42;0;GSW;Wiseman;;;;;;;22,000,001;;2,02;;
+PT01M57.00S;2;3pt;Jump Shot;201,939;30.831.143;66.980.699;58;42;1;GSW;Curry;Missed;25.2;;;;;22,000,001;;2,02;;
+PT01M54.00S;2;rebound;defensive;203,925;;;58;42;0;BKN;Harris;;;;;;;22,000,001;;2,02;;
+PT01M49.00S;2;2pt;Layup;1,627,747;93.774.639;47.372.855;58;42;1;BKN;LeVert;Missed;1.44;;;Toscano-Anderson;1,629,308;22,000,001;;2,02;;
+PT01M49.00S;2;block;;1,629,308;;;58;42;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT01M49.00S;2;rebound;offensive;202,681;;;58;42;0;BKN;Irving;;;;;;;22,000,001;;2,02;;
+PT01M49.00S;2;foul;personal;203,952;;;58;42;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT01M45.00S;2;3pt;Jump Shot;202,681;69.858.739;25.068.934;58;42;1;BKN;Irving;Missed;26.23;;;;;22,000,001;;2,02;;
+PT01M40.00S;2;rebound;defensive;1,629,308;;;58;42;0;GSW;Toscano-Anderson;;;;;;;22,000,001;;2,02;;
+PT01M32.00S;2;turnover;out-of-bounds;203,952;;;58;42;0;GSW;Wiggins;;;;;;;22,000,001;;2,02;;
+PT01M21.00S;2;foul;offensive;201,145;;;58;42;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT01M21.00S;2;turnover;offensive foul;201,145;;;58;42;0;BKN;Green;;;;;;;22,000,001;;2,02;;
+PT01M06.00S;2;3pt;Jump Shot;203,952;7.835.085;96.882.659;58;42;1;GSW;Wiggins;Missed;23.53;;;;;22,000,001;;2,02;;
+PT01M05.00S;2;rebound;defensive;0;;;58;42;0;BKN;;;;;;;;22,000,001;;2,02;;
+PT01M05.00S;2;stoppage;out-of-bounds;0;;;58;42;0;;;;;;;;;22,000,001;;2,02;;
+PT00M53.20S;2;2pt;Jump Shot;202,681;91.015.112;62.078.738;60;42;1;BKN;Irving;Made;6.84;;;;;22,000,001;;2,02;;
+PT00M44.80S;2;foul;personal;201,142;;;60;42;0;BKN;Durant;;;;;;;22,000,001;;2,02;;
+PT00M44.80S;2;freethrow;1 of 2;1,630,164;;;60;42;0;GSW;Wiseman;Missed;;;;;;22,000,001;;2,02;;

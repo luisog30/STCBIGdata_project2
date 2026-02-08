@@ -1,0 +1,30 @@
+version: '3.8'
+
+#Aquest codi estableix els fonaments de l'infraestructura de dades mitjançant la
+# creació d'un magatzem central automatitzat. Mitjançant un fitxer de configuració de
+# Docker Compose, el sistema aixeca un servidor local de MinIO, que actua com un "clon"
+#d'Amazon S3 al propi ordinador per emmagatzemar i compartir els fitxers Parquet del
+#dataset de l'NBA de forma eficient entre tots els membres de l'equip.
+
+services:
+  # Servei d'Emmagatzematge (El teu Rebost)
+  minio:
+    image: minio/minio
+    container_name: nba_minio
+    ports:
+      - "9000:9000" # Port pel codi (API)
+      - "9001:9001" # Port per a tu (Consola Web)
+    environment:
+      MINIO_ROOT_USER: "minioadmin"      # Usuari
+      MINIO_ROOT_PASSWORD: "minioadmin"  # Contrasenya
+    volumes:
+      - ./minio_data:/data               # Persistència: les dades es guarden aquí
+    command: server /data --console-address ":9001"
+    networks:
+      - nba_network
+
+  # Aquí afegirem més tard el servei de Dask, Ingesta, etc.
+
+networks:
+  nba_network:
+    driver: bridge
