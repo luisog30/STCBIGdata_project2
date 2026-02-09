@@ -44,7 +44,15 @@ dtype_fix = {
     'stealPersonId': 'object',
     'stealPlayerName': 'object',
     'assistPersonId': 'object',
-    'personId': 'object'
+    'personId': 'object',
+    'area': 'object',          # <--- Aquesta és la que t'ha donat l'error
+    'areaDetail': 'object',
+    'shotResult': 'object',
+    'actionType': 'object',
+    'subType': 'object',
+    'teamTricode': 'object',
+    'playerName': 'object',
+    'YEAR': 'object'
 }
 
 # Llegim amb Dask aplicant els tipus de ftixers
@@ -52,8 +60,7 @@ df = dd.read_csv(input_file,
                  sep=';',            # Important: CSV separat per comes (UTF-8)
                  encoding='utf-8',
                  dtype=dtype_fix,
-                 thousands = ',',
-                 decimal = ',') # Forcem que l'ID sigui text
+                 decimal=',') # Forcem que l'ID sigui text
 
 # 2. TRANSFORMACIÓ (Neteja i Enriquiment)
 print("Netejant i transformant...")
@@ -77,6 +84,13 @@ if 'blockPersonId' in df.columns:
     df['is_blocked'] = df['blockPersonId'].notnull().astype('int8')
     df = df.drop('blockPersonId', axis=1)
 
+df['scoreMargin'] = df['scoreHome'] - df['scoreAway']
+condition_clutch = (df['period'] >= 4) & (df['scoreMargin'].abs() <= 5)
+df['is_clutch'] = condition_clutch.astype('int8')
+
+if 'area' in df.columns:
+    df['area'] = df['area'].str.upper()
+
 # 3. CÀRREGA (Guardar a MinIO en Parquet)
 print("Guardant resultat a MinIO (Bucket: shots-data/processed)...")
 
@@ -89,9 +103,39 @@ try:
         storage_options=minio_options,
         engine="pyarrow",
         compression="snappy", # Comprimeix per estalviar espai
-        write_index=False
+        write_index=False,
+        partition_on=['YEAR']
     )
     print("ÈXIT! Dades processades i guardades a MinIO correctament.")
 except Exception as e:
     print(f"ERROR al guardar a MinIO: {e}")
     print("   Comprova que el contenidor Docker estigui engegat (docker ps)")
+
+# 4. CAPA GOLD (Agregacions per a l'Analista)
+# Exemple: Percentatge d'encert per Jugador i Zona
+# Agrupem per Nom i Zona, i calculem:
+# - Total de tirs (count)
+# - Punts totals (sum)
+# - Mitjana d'encert (mean de isFieldGoal si fos 1/0, o shotResult)
+
+# Truc: Primer convertim shotResult (que és text "Made"/"Missed") a número (1/0)
+df['shot_made_flag'] = (df['shotResult'] == 'Made').astype('int8')
+
+# Creem la taula resum
+df_player_stats = df.groupby(['playerName', 'teamTricode', 'area'])[['shot_made_flag', 'is_clutch']].agg(
+    {'shot_made_flag': ['count', 'sum', 'mean'], # Tirs intentats, anotats, % encert
+     'is_clutch': 'sum'}                         # Tirs fets en moment clutch
+)
+
+# Aplanem les columnes perquè quedi bonic (opcional però recomanat en Dask)
+df_player_stats.columns = ['total_shots', 'made_shots', 'accuracy', 'clutch_shots_attempted']
+
+# Guardem aquesta taula resum en una carpeta separada 'gold'
+target_path_gold = "s3://shots-data/gold/player_stats_zone/"
+
+df_player_stats.to_parquet(
+    target_path_gold,
+    storage_options=minio_options,
+    engine="pyarrow",
+    compression="snappy"
+)
