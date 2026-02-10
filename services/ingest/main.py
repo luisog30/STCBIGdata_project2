@@ -1,6 +1,7 @@
 import os, json, time, uuid
 import pandas as pd
 import paho.mqtt.client as mqtt
+import csv
 
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
@@ -38,13 +39,27 @@ def main():
     if not os.path.exists(CSV_FILE):
         raise RuntimeError(f"No encuentro {CSV_FILE}. Pon el CSV en ./Data/dummy_data.csv")
 
-    df = pd.read_csv(CSV_FILE)
+    # Lee CSV detectando separador automáticamente y saltando líneas corruptas
+    df = pd.read_csv(
+    CSV_FILE,
+    sep=None,              # autodetecta separador
+    engine="python",       # necesario para sep=None
+    on_bad_lines="skip",   # ignora filas rotas en dummy_data
+    encoding="utf-8",
+    encoding_errors="replace"
+)
+
+    # Limpia nombres de columnas (por si hay espacios raros)
+    df.columns = df.columns.str.strip()
 
     if "isFieldGoal" not in df.columns:
-        raise RuntimeError("El CSV no tiene columna isFieldGoal. Para probar, añade esa columna o usa un dataset real.")
+     raise RuntimeError("El CSV no tiene columna isFieldGoal. Para probar, añádela o usa dataset real.")
+
+    # Convierte isFieldGoal a booleano robusto
+    df["isFieldGoal"] = df["isFieldGoal"].astype(str).str.lower().isin(["1", "true", "t", "yes", "y"])
 
     # 1) FILTRAR FILAS PRIMERO
-    df = df[df["isFieldGoal"] == 1]
+    df = df[df["isFieldGoal"]]
 
     # 2) QUEDARSE SOLO CON COLUMNAS (si existen)
     cols = [c for c in KEEP_COLS if c in df.columns]

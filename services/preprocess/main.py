@@ -1,5 +1,16 @@
 import os, json, uuid, re
 import paho.mqtt.client as mqtt
+import math
+
+def present(v):
+    if v is None:
+        return False
+    if isinstance(v, float) and math.isnan(v):
+        return False
+    if isinstance(v, str) and v.strip().lower() in ("", "nan", "none", "null"):
+        return False
+    return True
+
 
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
@@ -20,8 +31,10 @@ def clock_to_seconds(clock_str):
 
 def derive(ev: dict) -> dict:
     # 1) Derivar is_assisted / is_blocked
-    is_assisted = 1 if (ev.get("assistPersonId") is not None or ev.get("assistPlayerNameInitial")) else 0
-    is_blocked  = 1 if (ev.get("blockPersonId") is not None or ev.get("blockPlayerName")) else 0
+    is_assisted = 1 if (present(ev.get("assistPersonId")) or present(ev.get("assistPlayerNameInitial"))) else 0
+    is_blocked  = 1 if (present(ev.get("blockPersonId")) or present(ev.get("blockPlayerName"))) else 0
+    
+
 
     made = 1 if ev.get("shotResult") == "Made" else 0
 
@@ -39,7 +52,9 @@ def derive(ev: dict) -> dict:
     out["made"] = made
     out["time_remaining_sec"] = clock_to_seconds(ev.get("clock"))
     out["margin_home"] = margin_home
-    out["zone"] = ev.get("areaDetail") or ev.get("area") or "unknown"
+    zone_val = ev.get("areaDetail") if present(ev.get("areaDetail")) else ev.get("area")
+    out["zone"] = zone_val if present(zone_val) else "unknown"
+
 
     # normaliza value -> shot_value
     out["shot_value"] = out.get("value")
