@@ -23,7 +23,47 @@ services:
     networks:
       - nba_network
 
-  # Aquí afegirem més tard el servei de Dask, Ingesta, etc.
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: nba_mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./services/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    networks:
+      - nba_network
+
+  preprocess:
+    build: ./services/preprocess
+    container_name: nba_preprocess
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      TOPIC_RAW: shots/raw
+      TOPIC_CLEAN: shots/clean
+    depends_on:
+      - mqtt
+    networks:
+      - nba_network
+
+  ingest:
+    build: ./services/ingest
+    container_name: nba_ingest
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: 1883
+      TOPIC_RAW: shots/raw
+      DATA_PATH: /data
+      MAX_EVENTS: 5000
+      SLEEP_MS: 0
+      # FORMAT: csv
+    volumes:
+      - ./Data:/data:ro
+    depends_on:
+      - mqtt
+      - preprocess
+    networks:
+      - nba_network
 
 networks:
   nba_network:
