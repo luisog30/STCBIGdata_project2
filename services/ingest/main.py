@@ -13,7 +13,7 @@ SLEEP_MS   = int(os.getenv("SLEEP_MS", "0"))
 
 CSV_FILE = os.path.join(DATA_PATH, "dummy_data.csv")
 
-# Verdes + Amarillas (según la imagen)
+# Verdes + Amarillas
 KEEP_COLS = [
     "gameId", "YEAR", "period", "clock", "timeActual",
     "teamId", "teamTricode", "playerName", "personId",
@@ -24,7 +24,7 @@ KEEP_COLS = [
     # amarillas para derivar luego
     "assistPlayerNameInitial", "assistPersonId",
     "blockPlayerName", "blockPersonId",
-    # filtro (solo para filtrar)
+    # filtro
     "isFieldGoal",
     # opcional
     "actionNumber"

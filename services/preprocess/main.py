@@ -60,7 +60,7 @@ def derive(ev: dict) -> dict:
     out["shot_value"] = out.get("value")
     out.pop("value", None)
 
-    # 2) borrar columnas amarillas (como dice la foto)
+    # 2) borrar columnas amarillas (foto)
     for k in ["assistPersonId", "assistPlayerNameInitial", "blockPlayerName", "blockPersonId"]:
         out.pop(k, None)
 
