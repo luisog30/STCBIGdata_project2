@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: nba_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - nba_network
+
+  api_backend:
+    build:
+      context: ./services/api_backend
+    container_name: nba_api_backend
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: shots-data
+      DATA_PATH: processed/YEAR=2020/part.0.parquet
+      MODEL_PATH: models/xpoints_model.pkl
+      REDIS_URL: redis://redis:6379/0
+      CACHE_TTL_SECONDS: 600
+    depends_on:
+      - minio
+      - redis
+    ports:
+      - "8000:8000"
+    networks:
+      - nba_network
+
+  dashboard:
+    build:
+      context: ./services/dashboard
+    container_name: nba_dashboard
+    environment:
+      API_BASE_URL: http://api_backend:8000
+    depends_on:
+      - api_backend
+    ports:
+      - "8501:8501"
+    networks:
+      - nba_network
+
+  xpoints_train:
+    build:
+      context: ./services/xpoints_model
+    container_name: nba_xpoints_train
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: shots-data
+      TRAIN_DATA_PATH: processed/YEAR=2020/part.0.parquet
+      MODEL_OUTPUT_PATH: models/xpoints_model.pkl
+    depends_on:
+      - minio
+    networks:
+      - nba_network
+    profiles:
+      - train
+
+networks:
+  nba_network:
+    external: false

@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pandas
+pyarrow
+s3fs
+redis
+scikit-learn
+fsspec
