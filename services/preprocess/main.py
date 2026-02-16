@@ -1,89 +1,191 @@
-import os, json, uuid, re
-import paho.mqtt.client as mqtt
+import os
+import json
+import uuid
 import math
+import re
+from typing import Any, Dict, Optional, Union, List
 
-def present(v):
-    if v is None:
-        return False
-    if isinstance(v, float) and math.isnan(v):
-        return False
-    if isinstance(v, str) and v.strip().lower() in ("", "nan", "none", "null"):
-        return False
-    return True
+import paho.mqtt.client as mqtt
 
 
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 TOPIC_RAW = os.getenv("TOPIC_RAW", "shots/raw")
 TOPIC_CLEAN = os.getenv("TOPIC_CLEAN", "shots/clean")
+MQTT_QOS = int(os.getenv("MQTT_QOS", "1"))
 
-CLOCK_RE = re.compile(r"PT(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?")
 
-def clock_to_seconds(clock_str):
-    if not clock_str:
+def parse_iso_duration_to_seconds(iso: Optional[str]) -> Optional[float]:
+    """
+    Convierte 'PT11M22.00S' -> 682.0
+    """
+    if not iso or not isinstance(iso, str):
         return None
-    m = CLOCK_RE.match(str(clock_str))
+    m = re.match(r"PT(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?", iso)
     if not m:
         return None
-    minutes = float(m.group(1) or 0)
-    seconds = float(m.group(2) or 0)
-    return minutes * 60 + seconds
-
-def derive(ev: dict) -> dict:
-    # 1) Derivar is_assisted / is_blocked
-    is_assisted = 1 if (present(ev.get("assistPersonId")) or present(ev.get("assistPlayerNameInitial"))) else 0
-    is_blocked  = 1 if (present(ev.get("blockPersonId")) or present(ev.get("blockPlayerName"))) else 0
-    
+    minutes = float(m.group(1)) if m.group(1) else 0.0
+    seconds = float(m.group(2)) if m.group(2) else 0.0
+    return minutes * 60.0 + seconds
 
 
-    made = 1 if ev.get("shotResult") == "Made" else 0
-
-    # extras útiles
-    margin_home = None
+def to_int(x: Any) -> Optional[int]:
+    if x is None:
+        return None
     try:
-        if ev.get("scoreHome") is not None and ev.get("scoreAway") is not None:
-            margin_home = int(ev["scoreHome"]) - int(ev["scoreAway"])
+        if isinstance(x, bool):
+            return int(x)
+        if isinstance(x, float) and math.isnan(x):
+            return None
+        return int(float(x))
     except Exception:
-        margin_home = None
-
-    out = dict(ev)
-    out["is_assisted"] = is_assisted
-    out["is_blocked"] = is_blocked
-    out["made"] = made
-    out["time_remaining_sec"] = clock_to_seconds(ev.get("clock"))
-    out["margin_home"] = margin_home
-    zone_val = ev.get("areaDetail") if present(ev.get("areaDetail")) else ev.get("area")
-    out["zone"] = zone_val if present(zone_val) else "unknown"
+        return None
 
 
-    # normaliza value -> shot_value
-    out["shot_value"] = out.get("value")
-    out.pop("value", None)
+def to_float(x: Any) -> Optional[float]:
+    if x is None:
+        return None
+    try:
+        if isinstance(x, float) and math.isnan(x):
+            return None
+        return float(x)
+    except Exception:
+        return None
 
-    # 2) borrar columnas amarillas (foto)
-    for k in ["assistPersonId", "assistPlayerNameInitial", "blockPlayerName", "blockPersonId"]:
-        out.pop(k, None)
+
+def is_truthy(v: Any) -> bool:
+    return str(v).lower() in ("1", "true", "t", "yes", "y")
+
+
+def clean_event(ev: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    # 0) asegurar que es tiro
+    if not is_truthy(ev.get("isFieldGoal")):
+        return None
+
+    shot_result = ev.get("shotResult")
+    made = 1 if str(shot_result).lower() == "made".lower() else 0
+
+    assist_person = ev.get("assistPersonId")
+    block_person = ev.get("blockPersonId")
+    block_name = ev.get("blockPlayerName")
+
+    # Según el criterio del grupo (foto): derivar y borrar columnas auxiliares
+    is_assisted = 1 if assist_person is not None else 0
+
+    # “Blocked” tiene sentido si es Missed y existe blockPersonId/Name
+    is_blocked = 1 if (str(shot_result).lower() == "missed" and (block_person is not None or block_name is not None)) else 0
+
+    score_home = to_int(ev.get("scoreHome"))
+    score_away = to_int(ev.get("scoreAway"))
+    margin_home = (score_home - score_away) if (score_home is not None and score_away is not None) else None
+
+    clock = ev.get("clock")
+    time_remaining_sec = parse_iso_duration_to_seconds(clock)
+
+    # Zona: preferimos areaDetail, fallback area
+    area = ev.get("area")
+    area_detail = ev.get("areaDetail")
+    zone = area_detail or area or "unknown"
+
+    # Valor del tiro (2/3): preferimos 'value', fallback actionType
+    shot_value = to_int(ev.get("value"))
+    if shot_value is None:
+        at = str(ev.get("actionType", "")).lower()
+        if "3" in at:
+            shot_value = 3
+        elif "2" in at:
+            shot_value = 2
+
+    out = {
+        "schema_version": "1.0",
+        "event_id": ev.get("event_id"),
+        "gameId": ev.get("gameId"),
+        "YEAR": to_int(ev.get("YEAR")),
+
+        "period": to_int(ev.get("period")),
+        "clock": clock,
+        "timeActual": ev.get("timeActual"),
+        "time_remaining_sec": time_remaining_sec,
+
+        "teamTricode": ev.get("teamTricode"),
+        "playerName": ev.get("playerName"),
+        "personId": to_int(ev.get("personId")),
+
+        "x": to_float(ev.get("x")),
+        "y": to_float(ev.get("y")),
+
+        "actionType": ev.get("actionType"),
+        "subType": ev.get("subType"),
+
+        "shotResult": shot_result,
+        "made": made,
+        "shotDistance": to_float(ev.get("shotDistance")),
+        "shot_value": shot_value,
+
+        "scoreHome": score_home,
+        "scoreAway": score_away,
+        "margin_home": margin_home,
+
+        "area": area,
+        "areaDetail": area_detail,
+        "zone": zone,
+
+        "is_assisted": is_assisted,
+        "is_blocked": is_blocked,
+    }
 
     return out
 
+
 def on_connect(client, userdata, flags, rc):
-    print("[preprocess] connected rc=", rc)
-    client.subscribe(TOPIC_RAW, qos=1)
+    print(f"[preprocess] connected rc={rc}, subscribing to {TOPIC_RAW}")
+    client.subscribe(TOPIC_RAW, qos=MQTT_QOS)
+
 
 def on_message(client, userdata, msg):
     try:
-        ev = json.loads(msg.payload.decode("utf-8"))
-        clean = derive(ev)
-        client.publish(TOPIC_CLEAN, json.dumps(clean, default=str), qos=1)
+        payload = msg.payload.decode("utf-8", errors="replace")
+        data = json.loads(payload)
+
+        # admite dict o lista
+        events: List[Dict[str, Any]]
+        if isinstance(data, list):
+            events = data
+        else:
+            events = [data]
+
+        published = 0
+        for ev in events:
+            if not isinstance(ev, dict):
+                continue
+
+            clean = clean_event(ev)
+            if clean is None:
+                continue
+
+            out_payload = json.dumps(clean, ensure_ascii=False, allow_nan=False)
+            info = client.publish(TOPIC_CLEAN, out_payload, qos=MQTT_QOS, retain=False)
+            if info.rc != mqtt.MQTT_ERR_SUCCESS:
+                print(f"[preprocess] publish error rc={info.rc}")
+            else:
+                published += 1
+
+        if published > 0:
+            print(f"[preprocess] published {published} clean events to {TOPIC_CLEAN}")
+
     except Exception as e:
-        print("[preprocess] error:", e)
+        print(f"[preprocess] ERROR processing message: {e}")
+
 
 def main():
-    c = mqtt.Client(client_id=f"preprocess-{uuid.uuid4()}")
-    c.on_connect = on_connect
-    c.on_message = on_message
-    c.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
-    c.loop_forever()
+    client = mqtt.Client(client_id=f"preprocess-{uuid.uuid4()}")
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    print(f"[preprocess] MQTT={MQTT_HOST}:{MQTT_PORT} raw={TOPIC_RAW} clean={TOPIC_CLEAN} qos={MQTT_QOS}")
+    client.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
+    client.loop_forever()
+
 
 if __name__ == "__main__":
     main()

@@ -41,8 +41,10 @@ services:
       MQTT_PORT: 1883
       TOPIC_RAW: shots/raw
       TOPIC_CLEAN: shots/clean
+      MQTT_QOS: 1
     depends_on:
       - mqtt
+    restart: unless-stopped
     networks:
       - nba_network
 
@@ -53,12 +55,20 @@ services:
       MQTT_HOST: mqtt
       MQTT_PORT: 1883
       TOPIC_RAW: shots/raw
-      DATA_PATH: /data
+      MQTT_QOS: 1
+
+      # Hugging Face real dataset
+      HF_DATASET: Vladislav/nba_dataset
+      HF_SPLIT: train
+      HF_STREAMING: "1"
+
+      # Demo control (evita volverte loco con 70M filas)
       MAX_EVENTS: 5000
       SLEEP_MS: 0
-      # FORMAT: csv
-    volumes:
-      - ./Data:/data:ro
+
+      # Opcional: filtrar por año (ej. 2020-2020)
+      # YEAR_MIN: "2020"
+      # YEAR_MAX: "2020"
     depends_on:
       - mqtt
       - preprocess

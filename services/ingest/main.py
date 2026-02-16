@@ -1,95 +1,162 @@
-import os, json, time, uuid
-import pandas as pd
-import paho.mqtt.client as mqtt
-import csv
+import os
+import json
+import time
+import uuid
+import math
+import hashlib
+from typing import Any, Dict, Optional
 
+import paho.mqtt.client as mqtt
+from datasets import load_dataset
+from tqdm import tqdm
+
+
+# -------------------------
+# ENV / CONFIG
+# -------------------------
 MQTT_HOST = os.getenv("MQTT_HOST", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
-TOPIC_RAW  = os.getenv("TOPIC_RAW", "shots/raw")
+TOPIC_RAW = os.getenv("TOPIC_RAW", "shots/raw")
+MQTT_QOS = int(os.getenv("MQTT_QOS", "1"))
 
-DATA_PATH  = os.getenv("DATA_PATH", "/data")
-MAX_EVENTS = int(os.getenv("MAX_EVENTS", "5000"))
-SLEEP_MS   = int(os.getenv("SLEEP_MS", "0"))
+HF_DATASET = os.getenv("HF_DATASET", "Vladislav/nba_dataset")
+HF_SPLIT = os.getenv("HF_SPLIT", "train")
+HF_STREAMING = os.getenv("HF_STREAMING", "1") == "1"
 
-CSV_FILE = os.path.join(DATA_PATH, "dummy_data.csv")
+MAX_EVENTS = int(os.getenv("MAX_EVENTS", "5000"))  # para demo local (cambia si quieres)
+SLEEP_MS = int(os.getenv("SLEEP_MS", "0"))
 
-# Verdes + Amarillas
-KEEP_COLS = [
-    "gameId", "YEAR", "period", "clock", "timeActual",
-    "teamId", "teamTricode", "playerName", "personId",
-    "actionType", "subType", "qualifiers",
-    "shotResult", "pointsTotal", "shotDistance", "value",
-    "x", "y", "area", "areaDetail",
+YEAR_MIN = os.getenv("YEAR_MIN")  # opcional
+YEAR_MAX = os.getenv("YEAR_MAX")  # opcional
+
+# Campos mínimos “raw” (incluye los necesarios para derivar is_assisted / is_blocked)
+RAW_COLS = [
+    "gameId", "YEAR",
+    "period", "clock", "timeActual",
+    "teamTricode",
+    "playerName", "personId",
+    "x", "y",
     "scoreHome", "scoreAway",
-    # amarillas para derivar luego
-    "assistPlayerNameInitial", "assistPersonId",
-    "blockPlayerName", "blockPersonId",
-    # filtro
+    "actionType", "subType",
+    "shotResult", "shotDistance", "value",
+    "area", "areaDetail",
+    "assistPersonId", "assistPlayerNameInitial",
+    "blockPersonId", "blockPlayerName",
     "isFieldGoal",
-    # opcional
     "actionNumber"
 ]
 
-def connect_mqtt():
-    c = mqtt.Client(client_id=f"ingest-{uuid.uuid4()}")
-    c.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
-    return c
 
+# -------------------------
+# Helpers
+# -------------------------
+def sanitize_value(v: Any) -> Any:
+    """Convierte NaN -> None para JSON estricto."""
+    if isinstance(v, float) and math.isnan(v):
+        return None
+    return v
+
+
+def make_event_id(row: Dict[str, Any]) -> str:
+    """
+    ID estable para deduplicar:
+    hash(gameId|YEAR|actionNumber|period|clock|personId)
+    """
+    parts = [
+        str(row.get("gameId", "")),
+        str(row.get("YEAR", "")),
+        str(row.get("actionNumber", "")),
+        str(row.get("period", "")),
+        str(row.get("clock", "")),
+        str(row.get("personId", "")),
+    ]
+    raw = "|".join(parts).encode("utf-8")
+    return hashlib.md5(raw).hexdigest()
+
+
+def connect_mqtt() -> mqtt.Client:
+    client = mqtt.Client(client_id=f"ingest-{uuid.uuid4()}")
+    client.connect(MQTT_HOST, MQTT_PORT, keepalive=60)
+    client.loop_start()
+    return client
+
+
+def year_in_range(y: Any) -> bool:
+    if y is None:
+        return True
+    try:
+        y_int = int(y)
+    except Exception:
+        return True
+
+    if YEAR_MIN is not None and y_int < int(YEAR_MIN):
+        return False
+    if YEAR_MAX is not None and y_int > int(YEAR_MAX):
+        return False
+    return True
+
+
+def project_row(row: Dict[str, Any]) -> Dict[str, Any]:
+    out = {}
+    for c in RAW_COLS:
+        out[c] = sanitize_value(row.get(c))
+    out["event_id"] = make_event_id(out)
+    out["schema_version"] = "1.0"
+    return out
+
+
+# -------------------------
+# Main
+# -------------------------
 def main():
-    if not os.path.exists(CSV_FILE):
-        raise RuntimeError(f"No encuentro {CSV_FILE}. Pon el CSV en ./Data/dummy_data.csv")
-
-    # Lee CSV detectando separador automáticamente y saltando líneas corruptas
-    df = pd.read_csv(
-    CSV_FILE,
-    sep=None,              # autodetecta separador
-    engine="python",       # necesario para sep=None
-    on_bad_lines="skip",   # ignora filas rotas en dummy_data
-    encoding="utf-8",
-    encoding_errors="replace"
-)
-
-    # Limpia nombres de columnas (por si hay espacios raros)
-    df.columns = df.columns.str.strip()
-
-    if "isFieldGoal" not in df.columns:
-     raise RuntimeError("El CSV no tiene columna isFieldGoal. Para probar, añádela o usa dataset real.")
-
-    # Convierte isFieldGoal a booleano robusto
-    df["isFieldGoal"] = df["isFieldGoal"].astype(str).str.lower().isin(["1", "true", "t", "yes", "y"])
-
-    # 1) FILTRAR FILAS PRIMERO
-    df = df[df["isFieldGoal"]]
-
-    # 2) QUEDARSE SOLO CON COLUMNAS (si existen)
-    cols = [c for c in KEEP_COLS if c in df.columns]
-    df = df[cols]
+    print(f"[ingest] HF_DATASET={HF_DATASET} split={HF_SPLIT} streaming={HF_STREAMING}")
+    print(f"[ingest] MQTT={MQTT_HOST}:{MQTT_PORT} topic={TOPIC_RAW} qos={MQTT_QOS}")
+    print(f"[ingest] MAX_EVENTS={MAX_EVENTS} YEAR_MIN={YEAR_MIN} YEAR_MAX={YEAR_MAX}")
 
     client = connect_mqtt()
 
+    # Cargamos dataset real (streaming recomendado por tamaño)
+    ds = load_dataset(HF_DATASET, split=HF_SPLIT, streaming=HF_STREAMING)
+
     sent = 0
-    for _, r in df.iterrows():
-        if sent >= MAX_EVENTS:
-            break
+    t0 = time.time()
 
-        row = r.to_dict()
+    try:
+        for row in tqdm(ds, desc="[ingest] streaming rows"):
+            # 1) filtra rango de año (si está)
+            if not year_in_range(row.get("YEAR")):
+                continue
 
-        # event_id estable si existen gameId + actionNumber
-        game_id = row.get("gameId")
-        action_num = row.get("actionNumber")
-        event_id = f"{game_id}-{action_num}" if pd.notna(game_id) and pd.notna(action_num) else str(uuid.uuid4())
+            # 2) filtra solo tiros (isFieldGoal=1)
+            is_fg = row.get("isFieldGoal")
+            if str(is_fg).lower() not in ("1", "true", "t", "yes", "y"):
+                continue
 
-        # no hace falta publicar isFieldGoal (ya filtrado)
-        row.pop("isFieldGoal", None)
+            event = project_row(row)
+            payload = json.dumps(event, ensure_ascii=False, allow_nan=False)
 
-        payload = {"event_id": event_id, **row}
-        client.publish(TOPIC_RAW, json.dumps(payload, default=str), qos=1)
-        sent += 1
+            info = client.publish(TOPIC_RAW, payload=payload, qos=MQTT_QOS, retain=False)
+            if info.rc != mqtt.MQTT_ERR_SUCCESS:
+                print(f"[ingest] publish error rc={info.rc}")
 
-        if SLEEP_MS > 0:
-            time.sleep(SLEEP_MS / 1000)
+            sent += 1
+            if sent % 500 == 0:
+                elapsed = time.time() - t0
+                print(f"[ingest] sent={sent} events to {TOPIC_RAW} ({elapsed:.1f}s)")
 
-    print(f"[ingest] sent={sent} events to {TOPIC_RAW}")
+            if SLEEP_MS > 0:
+                time.sleep(SLEEP_MS / 1000.0)
+
+            if sent >= MAX_EVENTS:
+                break
+
+    except KeyboardInterrupt:
+        print("[ingest] interrupted by user")
+
+    finally:
+        client.loop_stop()
+        client.disconnect()
+        print(f"[ingest] done. sent={sent} events")
 
 if __name__ == "__main__":
     main()
