@@ -39,7 +39,7 @@ def show_player_card(player_id: int, column) -> None:
         if shot_points:
             st.caption("Basic shot chart placeholder")
             shot_df = pd.DataFrame(shot_points)
-            st.scatter_chart(shot_df, x="locationX", y="locationY", color="isScore")
+            st.scatter_chart(shot_df[["locationX", "locationY"]], x="locationX", y="locationY")
         else:
             st.info("No x/y shot data available for this player.")
 

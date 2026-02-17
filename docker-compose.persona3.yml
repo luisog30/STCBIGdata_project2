@@ -60,7 +60,3 @@ services:
       - nba_network
     profiles:
       - train
-
-networks:
-  nba_network:
-    external: false
