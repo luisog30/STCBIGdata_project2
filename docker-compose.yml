@@ -1,24 +1,17 @@
 version: '3.8'
 
-#Aquest codi estableix els fonaments de l'infraestructura de dades mitjançant la
-# creació d'un magatzem central automatitzat. Mitjançant un fitxer de configuració de
-# Docker Compose, el sistema aixeca un servidor local de MinIO, que actua com un "clon"
-#d'Amazon S3 al propi ordinador per emmagatzemar i compartir els fitxers Parquet del
-#dataset de l'NBA de forma eficient entre tots els membres de l'equip.
-
 services:
-  # Servei d'Emmagatzematge (El teu Rebost)
   minio:
     image: minio/minio
     container_name: nba_minio
     ports:
-      - "9000:9000" # Port pel codi (API)
-      - "9001:9001" # Port per a tu (Consola Web)
+      - "9000:9000" 
+      - "9001:9001" 
     environment:
-      MINIO_ROOT_USER: "minioadmin"      # Usuari
-      MINIO_ROOT_PASSWORD: "minioadmin"  # Contrasenya
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
     volumes:
-      - ./minio_data:/data               # Persistència: les dades es guarden aquí
+      - ./minio_data:/data
     command: server /data --console-address ":9001"
     networks:
       - nba_network
@@ -30,6 +23,14 @@ services:
       - "1883:1883"
     volumes:
       - ./services/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    networks:
+      - nba_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: nba_redis
+    ports:
+      - "6379:6379"
     networks:
       - nba_network
 
@@ -56,24 +57,85 @@ services:
       MQTT_PORT: 1883
       TOPIC_RAW: shots/raw
       MQTT_QOS: 1
-
-      # Hugging Face real dataset
       HF_DATASET: Vladislav/nba_dataset
       HF_SPLIT: train
       HF_STREAMING: "1"
-
-      # Demo control (evita volverte loco con 70M filas)
       MAX_EVENTS: 5000
       SLEEP_MS: 0
-
-      # Opcional: filtrar por año (ej. 2020-2020)
-      # YEAR_MIN: "2020"
-      # YEAR_MAX: "2020"
     depends_on:
       - mqtt
       - preprocess
     networks:
       - nba_network
+
+  xpoints_train:
+    build:
+      context: ./services/xpoints_model
+    container_name: nba_xpoints_train
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: nba-data
+      # Ruta d'entrada: El fitxer generat pel teu ETL
+      TRAIN_DATA_PATH: processed/clean_data.parquet
+      # Ruta de sortida: El model entrenat
+      MODEL_OUTPUT_PATH: models/xpoints_model.pkl
+    depends_on:
+      - minio
+    networks:
+      - nba_network
+    profiles:
+      - train
+
+  api_backend:
+    build:
+      context: ./services/api_backend
+    container_name: nba_api_backend
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: nba-data
+      DATA_PATH: processed/clean_data.parquet
+      MODEL_PATH: models/xpoints_model.pkl
+      REDIS_URL: redis://redis:6379/0
+      CACHE_TTL_SECONDS: 600
+    depends_on:
+      - minio
+      - redis
+    ports:
+      - "8000:8000"
+    networks:
+      - nba_network
+
+  dashboard:
+    build:
+      context: ./services/dashboard
+    container_name: nba_dashboard
+    environment:
+      API_BASE_URL: http://api_backend:8000
+    depends_on:
+      - api_backend
+    ports:
+      - "8501:8501"
+    networks:
+      - nba_network
+
+  etl_job:
+    build: ./services/etl
+    container_name: nba_etl
+    environment:
+      S3_ENDPOINT: http://minio:9000
+      MINIO_USER: minioadmin
+      MINIO_PASS: minioadmin
+    depends_on:
+      - minio
+      - mqtt
+    networks:
+      - nba_network
+    profiles:
+      - etl
 
 networks:
   nba_network:

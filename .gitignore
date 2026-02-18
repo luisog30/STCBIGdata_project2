@@ -1,20 +1,24 @@
-# Virtual env
+# --- Entorn Virtual ---
 .venv/
 venv/
 
-# Python cache
+# --- Python ---
 __pycache__/
 *.pyc
 
-# Big data
+# --- Dades (MAI pujar al GitHub) ---
 *.parquet
-
-# MinIO runtime internals
-.minio.sys/
-minio_data/.minio.sys/
-minio_data/**/.minio.sys/
-**/.minio.sys/
-minio_data/.minio.sys/**
-
-# (Opcional) si no queréis subir datos locales
+*.csv
+*.json
+minio_data/
+minio_data_old/
 Data/
+STCBIGdata_project2-feature-*/
+
+# --- MinIO Internals ---
+.minio.sys/
+**/.minio.sys/
+
+# --- Mac/Windows ---
+.DS_Store
+Thumbs.db

@@ -1,438 +1,176 @@
-# STCBIGdata Project 2 — Team 2  
-## Shot Selection & Efficiency Insights (Data Engineer / MQTT Pipeline)
+# STCBIGdata Project 2: End-to-End NBA Analytics Pipeline
 
-This repository contains the **data acquisition + preprocessing** pipeline for the NBA/WNBA play-by-play + shot-detail dataset from Hugging Face (**Vladislav/nba_dataset**).  
-It publishes:
-- **Raw events** as JSON to MQTT topic: `shots/raw`
-- **Clean/enriched events** as JSON to MQTT topic: `shots/clean`
+This repository contains a complete Big Data engineering solution for analyzing NBA shot data. The system ingests data in real-time, processes it via a message broker, stores it in a Data Lake, trains a Machine Learning model, and visualizes the results via an interactive Dashboard.
 
-> **Design choice (final project):**
-> - ✅ **Ingest = batch job** (sends N events and exits)  
-> - ✅ **Preprocess = continuous service** (keeps listening + publishing clean events)  
-> This avoids infinite re-reading + duplicate data on the Hugging Face dataset.
+## 1. System Architecture
 
----
+The project is structured into four distinct phases, orchestrated via Docker Compose:
 
-## 1) Architecture (end-to-end)
+### Phase 1: Ingestion & Messaging (MQTT)
+- **Ingest Service:** Connects to the Hugging Face dataset (`Vladislav/nba_dataset`), simulates a real-time data stream, and publishes raw JSON events to the MQTT topic `shots/raw`.
+- **Message Broker:** Eclipse Mosquitto manages the message queues using QoS 1 to ensure delivery.
+- **Preprocess Service:** Subscribes to `shots/raw`, performs data cleaning and standardization, and republishes enriched data to `shots/clean`.
 
-1. **Ingest service** (batch)
-   - Reads dataset from Hugging Face (`HF_STREAMING=1`)
-   - Publishes raw JSON messages to `shots/raw` (QoS configurable)
-   - Stops after `MAX_EVENTS` (default 5000)
+### Phase 2: Storage & ETL (MinIO)
+- **Data Lake:** MinIO provides local S3-compatible object storage.
+- **Bridge Script:** A local Python script subscribes to `shots/clean` and persists individual events as JSON files into the MinIO bucket `nba-data`.
+- **ETL Process:** A batch Python process extracts the JSON files, transforms the data (calculating metrics like clutch time and shot zones), and loads the consolidated dataset as a partitioned Parquet file (`processed/clean_data.parquet`).
 
-2. **Preprocess service** (continuous)
-   - Subscribes to `shots/raw`
-   - Filters + cleans + enriches
-   - Publishes to `shots/clean`
-   - Keeps running
+### Phase 3: Machine Learning (Scikit-Learn)
+- **Training Service:** A Dockerized container reads the Parquet file from MinIO.
+- **Model:** It trains a Logistic Regression model to calculate "Expected Points" (xP) based on shot distance and court coordinates.
+- **Artifact:** The trained model is serialized (`.pkl`) and saved back to MinIO for deployment.
 
-3. **MQTT Broker (Mosquitto)**
-   - Runs in Docker
-   - Exposes port `1883`
-
-4. **(Optional) MinIO**
-   - S3-like local storage (for later Parquet exports / sharing)
-   - Exposes `9000` (API) and `9001` (console)
+### Phase 4: Serving & Visualization
+- **Backend API:** A FastAPI service exposes endpoints for player metrics and shot predictions. It utilizes **Redis** to cache heavy aggregation queries.
+- **Dashboard:** A Streamlit application consumes the API to render interactive shot charts and efficiency comparisons.
 
 ---
 
-## 2) Requirements (local machine)
+## 2. Repository Structure
 
-- Docker Desktop (Windows/macOS/Linux)
-- Git
-- Recommended: Visual Studio Code
-
-> No local Python is required to run the pipeline (everything runs in Docker containers).
-
----
-
-## 3) Repository structure
-
-```
 .
-├── docker-compose.yml
-├── services
-│   ├── mqtt
-│   │   └── mosquitto.conf
-│   ├── ingest
-│   │   ├── Dockerfile
-│   │   ├── requirements.txt
-│   │   └── main.py
-│   └── preprocess
-│       ├── Dockerfile
-│       ├── requirements.txt
-│       └── main.py
-└── minio_data/                # local MinIO persistence (should be gitignored)
-```
+├── docker-compose.yml          # Orchestration configuration for all services
+├── requirements.txt            # Python dependencies for local ETL scripts
+├── services/
+│   ├── ingest/                 # Data ingestion logic (Hugging Face -> MQTT)
+│   ├── preprocess/             # Real-time cleaning logic (MQTT -> MQTT)
+│   ├── mqtt/                   # Mosquitto broker configuration
+│   ├── etl/                    # ETL scripts (MQTT -> MinIO -> Parquet)
+│   ├── xpoints_model/          # ML Training logic
+│   ├── api_backend/            # FastAPI Backend
+│   └── dashboard/              # Streamlit Frontend
+└── minio_data/                 # Local persistence for MinIO (Git ignored)
+
+## 3. Prerequisites
+
+Ensure the following are installed on your local machine:
+
+* **Docker Desktop** (Running Linux containers)
+* **Python 3.9+** (For executing local ETL scripts)
+* **Git**
 
 ---
 
-## 4) docker-compose.yml (reference)
+## 4. Execution Guide
 
-Use this compose file as the baseline configuration (already in the repo):
+Follow these steps in order to stand up the full pipeline.
 
-```yaml
-version: '3.8'
+### Step 1: Start Base Infrastructure
+Initialize the core services: MinIO, MQTT Broker, Redis, Preprocess, API, and Dashboard.
 
-services:
-  minio:
-    image: minio/minio
-    container_name: nba_minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: "minioadmin"
-      MINIO_ROOT_PASSWORD: "minioadmin"
-    volumes:
-      - ./minio_data:/data
-    command: server /data --console-address ":9001"
-    networks:
-      - nba_network
+docker compose up -d --build
 
-  mqtt:
-    image: eclipse-mosquitto:2
-    container_name: nba_mqtt
-    ports:
-      - "1883:1883"
-    volumes:
-      - ./services/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-    networks:
-      - nba_network
+### Step 2: Data Ingestion
+Run the ingestion job to populate the system with data. By default, this sends 5,000 events.
 
-  preprocess:
-    build: ./services/preprocess
-    container_name: nba_preprocess
-    environment:
-      MQTT_HOST: mqtt
-      MQTT_PORT: 1883
-      TOPIC_RAW: shots/raw
-      TOPIC_CLEAN: shots/clean
-      MQTT_QOS: 1
-    depends_on:
-      - mqtt
-    restart: unless-stopped
-    networks:
-      - nba_network
-
-  ingest:
-    build: ./services/ingest
-    container_name: nba_ingest
-    environment:
-      MQTT_HOST: mqtt
-      MQTT_PORT: 1883
-      TOPIC_RAW: shots/raw
-      MQTT_QOS: 1
-
-      HF_DATASET: Vladislav/nba_dataset
-      HF_SPLIT: train
-      HF_STREAMING: "1"
-
-      MAX_EVENTS: 5000
-      SLEEP_MS: 0
-
-      # Optional year filter:
-      # YEAR_MIN: "2020"
-      # YEAR_MAX: "2020"
-    depends_on:
-      - mqtt
-      - preprocess
-    networks:
-      - nba_network
-
-networks:
-  nba_network:
-    driver: bridge
-```
-
-> Note: Docker Compose v2 shows a warning that `version:` is obsolete. It’s safe to remove, but it does not break anything.
-
----
-
-## 5) Quickstart (run the full pipeline)
-
-### 5.1 Clone the repo & checkout the working branch
-
-```bash
-git clone https://github.com/victorceballosfouces/STCBIGdata_project2.git
-cd STCBIGdata_project2
-git checkout feature/mqtt-ingest-preprocess
-```
-
-### 5.2 Start base services (MQTT + Preprocess + MinIO)
-
-```bash
-docker compose up -d --build minio mqtt preprocess
-```
-
-Check containers:
-
-```bash
-docker ps
-```
-
-You should see:
-- `nba_mqtt` (running)
-- `nba_preprocess` (running)
-- `nba_minio` (running)
-
-### 5.3 Run ingest (batch job)
-
-Run ingest as a one-time job (it will exit when done):
-
-```bash
-docker compose up --build --force-recreate ingest
-```
-
-Expected behavior:
-- `nba_ingest` prints progress like `sent=5000 events...`
-- Then exits with `code 0`
-
-To run ingest again later (recommended command):
-
-```bash
 docker compose run --rm ingest
-```
 
----
+### Step 3: ETL Execution (Local)
+This step bridges the gap between the real-time stream and the analytical model using a containerized ETL process.
 
-## 6) Step 3 — “Definitive test”: verify MQTT topics end-to-end
-
-You can run these commands in **either**:
-- **Docker Desktop** → click container `nba_mqtt` → tab **Exec** → run the commands  
-**or**
-- Your terminal using `docker exec`
-
-### 6.1 Subscribe to all topics
-
-```bash
-docker exec -it nba_mqtt sh
-```
-
-Inside the container:
-
-```sh
-mosquitto_sub -t 'shots/#' -v
-```
-
-If everything is correct you will see messages like:
-- `shots/raw {...}`
-- `shots/clean {...}`
-
-### 6.2 Subscribe only to clean messages
-
-```sh
-mosquitto_sub -t 'shots/clean' -v
-```
-
-### 6.3 Publish a small manual test message (optional)
-
-In the same `nba_mqtt` shell:
-
-```sh
-mosquitto_pub -t shots/raw -m '{"event_id":"test-1","shotResult":"Made","actionType":"2pt","value":2,"assistPersonId":123,"blockPersonId":null}'
-```
-
-You should see `shots/clean` output shortly after (preprocess transforms + enriches).
-
-To exit the container shell:
-
-```sh
-exit
-```
-
----
-
-## 7) What “finished” looks like (expected Docker behavior)
-
-✅ `nba_preprocess` keeps running and logging publishes like:
-
-```bash
-docker logs -f nba_preprocess
-```
-
-✅ `nba_ingest` exits after sending `MAX_EVENTS` (this is correct):
-
-```bash
-docker logs nba_ingest
-```
-
-In Docker Desktop you’ll see:
-- `nba_ingest` = **Exited (0)** (expected)
-- `nba_preprocess` = **Running** (expected)
-- `nba_mqtt` = **Running** (expected)
-
----
-
-## 8) Configuration (how Integrator 2 should control data volume)
-
-All controls are via environment variables in `docker-compose.yml`:
-
-### Ingest
-- `HF_DATASET` (default `Vladislav/nba_dataset`)
-- `HF_SPLIT` (default `train`)
-- `HF_STREAMING` (`"1"` recommended)
-- `MAX_EVENTS` (default `5000`)  
-  - Increase to process more data (e.g. `50000`)
-- `SLEEP_MS` (default `0`)  
-  - Add a delay between messages if needed
-- `YEAR_MIN` / `YEAR_MAX` (optional)  
-  - Example: only 2020 season
-
-### Preprocess
-- `TOPIC_RAW` (default `shots/raw`)
-- `TOPIC_CLEAN` (default `shots/clean`)
-- `MQTT_QOS` (default `1`)
-
----
-
-## 9) Output message formats (important for Integrator 2)
-
-### 9.1 Raw topic: `shots/raw`
-
-- Messages are **JSON**.
-- Fields are close to dataset rows (some may be missing/null depending on source row).
-
-Minimum you can assume exists:
-- `event_id` (or equivalent unique identifier)
-- shot/action descriptors (like `actionType`, `subType`, `shotResult`)
-- coordinates (`x`, `y`) may be null in some rows
-
-### 9.2 Clean topic: `shots/clean` (recommended schema for analytics)
-
-Preprocess publishes a normalized message with these core fields:
-
-- `schema_version` (e.g. `"1.0"`)
-- `event_id` (string)
-- `gameId` (int/string)
-- `YEAR` (int)
-- `period` (int)
-- `clock` (string, dataset format)
-- `timeActual` (string timestamp)
-- `teamTricode` (string)
-
-- `playerName` (string)
-- `personId` (int)
-
-- `actionType` (string: `2pt` / `3pt`)
-- `subType` (string)
-- `shotResult` (string: `Made` / `Missed`)
-- `made` (0/1)
-- `shotDistance` (float)
-
-- `x` (float)
-- `y` (float)
-
-- `scoreHome` (int)
-- `scoreAway` (int)
-- `margin_home` (int = scoreHome - scoreAway)
-
-- `area` (string or null)
-- `areaDetail` (string or null)
-- `zone` (string: if unknown → `"unknown"`)
-
-- `shot_value` (2 or 3)
-- `is_assisted` (0/1)
-- `is_blocked` (0/1)
-
-> Some fields can legitimately be `null`. Integrator 2 should handle nulls safely.
-
----
-
-## 10) How Integrator 2 can consume `shots/clean` (example subscriber)
-
-Below is a minimal Python subscriber (outside Docker, optional) that prints clean messages:
-
-```python
-import json
-import paho.mqtt.client as mqtt
-
-BROKER = "localhost"
-PORT = 1883
-TOPIC = "shots/clean"
-
-def on_message(client, userdata, msg):
-    payload = json.loads(msg.payload.decode("utf-8", errors="replace"))
-    print("CLEAN:", payload)
-
-client = mqtt.Client(client_id="integrator2-consumer")
-client.connect(BROKER, PORT, keepalive=60)
-client.subscribe(TOPIC, qos=1)
-client.on_message = on_message
-
-print("Listening on", TOPIC)
-client.loop_forever()
-```
-
-If Integrator 2 prefers staying inside Docker-only, they can always test via:
-
-```bash
-docker exec -it nba_mqtt sh -c "mosquitto_sub -t 'shots/clean' -v"
-```
-
----
-
-## 11) Stop / reset the environment
-
-Stop services:
-
-```bash
-docker compose down
-```
-
-Full reset (removes volumes):
-
-```bash
-docker compose down -v
-```
-
-If MinIO persistence causes problems, delete local folder:
-
-```bash
-rm -rf minio_data
-```
-
-(Windows PowerShell)
-
-```powershell
-Remove-Item -Recurse -Force .\minio_data
-```
-
----
-
-## 12) Troubleshooting
-
-### Port already in use (1883 / 9000 / 9001)
-- Another MQTT/MinIO is running locally
-- Fix: stop it or change ports in `docker-compose.yml`
-
-### Ingest exits quickly
-- This is expected when `MAX_EVENTS` is set
-- Increase `MAX_EVENTS` to send more data
-
-### “No messages on shots/clean”
-Check:
-1. `nba_preprocess` is running  
+#### Run the Bridge (MQTT to MinIO):
    ```bash
-   docker logs -f nba_preprocess
-   ```
-2. You are subscribing to the right topic (`shots/clean`)
-3. `preprocess` depends on the fields it computes (if you publish manual minimal JSON, some fields may become `unknown`)
+   docker compose --profile etl run etl_job python bridge.py
 
-### Git shows MinIO runtime files
-MinIO creates internal state under `minio_data/` and `.minio.sys/`.
-These should be **ignored** via `.gitignore` and never committed.
+#### Install dependencies:
+pip install -r requirements.txt
 
----
+#### Run the Bridge (MQTT to MinIO):
+This script listens for MQTT messages and saves them as JSON.
 
-## 13) Handoff checklist (Integrator 2)
+python services/etl/bridge.py
 
-To continue analytics work, Integrator 2 only needs:
+Keep this running while Ingestion (Step 2) is active. Once data is saved, verify files in MinIO and stop with Ctrl+C.
 
-- ✅ Run: `docker compose up -d --build minio mqtt preprocess`
-- ✅ Run ingest job whenever they need new data:  
-  `docker compose run --rm ingest`
-- ✅ Consume clean stream from `shots/clean`
-- ✅ Treat ingest as **batch**, preprocess as **continuous**
+#### Run the ETL Processor:
+This script converts the JSON files into a clean Parquet file.
 
-That’s it — the pipeline is ready for downstream aggregation, shot charts, and context efficiency metrics.
+python services/etl/etl_process.py
+
+Expected Output: "EXIT: Data processed and saved to processed/clean_data.parquet"
+
+### Step 4: Model Training
+Train the Machine Learning model using the Parquet file generated in Step 3.
+
+docker compose --profile train up xpoints_train
+
+Note: This container will exit automatically once the model (xpoints_model.pkl) is saved to MinIO.
+
+### Step 5: Access Applications
+The system is now fully operational. Access the services via your browser:
+
+Dashboard (Streamlit): http://localhost:8501
+MinIO Console: http://localhost:9001
+  Credentials: minioadmin / minioadmin
+
+API Documentation: http://localhost:8000/docs
+
+## 5. Configuration Reference
+The system behavior is controlled via environment variables in docker-compose.yml.
+
+### Ingestion Settings
+MAX_EVENTS: Number of shots to process (Default: 5000). Increase this for a larger dataset.
+
+SLEEP_MS: Artificial delay between messages (milliseconds). Set to >0 to visualize real-time flow.
+
+HF_STREAMING: Set to "1" to stream data without downloading the full dataset locally.
+
+### MQTT Settings
+TOPIC_RAW: Topic for initial data (shots/raw).
+
+TOPIC_CLEAN: Topic for processed data (shots/clean).
+
+MQTT_QOS: Quality of Service level (Default: 1).
+
+### API & Cache Settings
+CACHE_TTL_SECONDS: Duration to hold player metrics in Redis (Default: 600s).
+
+MODEL_PATH: Location of the model file within the bucket.
+
+## 6. Data Schema
+### Clean Topic (shots/clean)
+The Preprocess service normalizes data into the following schema:
+
+Identifiers: event_id, gameId, personId, playerName.
+
+Temporal: YEAR, period, clock, timeActual.
+
+Spatial: x, y (Court coordinates), shotDistance, area, zone.
+
+Context: shotResult (Made/Missed), shot_value (2/3), is_clutch, scoreMargin.
+
+### Parquet Output (processed/clean_data.parquet)
+The ETL process creates a columnar file optimized for ML, renaming specific columns to match the training script requirements:
+
+locationX (Mapped from x)
+
+locationY (Mapped from y)
+
+distance (Mapped from shotDistance)
+
+isScore (Binary target variable derived from shotResult)
+
+## 7. Troubleshooting
+
+### Issue: Dashboard shows empty charts.
+
+Cause: The ML model or data file is missing.
+
+Solution: Ensure you successfully ran python services/etl/etl_process.py (Step 3) and the xpoints_train container (Step 4). Check MinIO to confirm clean_data.parquet and xpoints_model.pkl exist in the nba-data bucket.
+
+### Issue: Connection Refused on Port 1883 or 5432.
+
+Cause: You have a local instance of Mosquitto or Postgres/Redis running.
+
+Solution: Stop local services or modify the port mapping in docker-compose.yml.
+
+### Issue: Ingestion stops immediately.
+
+Cause: MAX_EVENTS might be set too low.
+
+Solution: Check the docker-compose.yml file and ensure MAX_EVENTS is set to at least 1000.
+
+### Issue: "MinIO bucket does not exist".
+
+Solution: The bridge.py script usually creates the bucket automatically. If it fails, log in to the MinIO console (localhost:9001) and create a bucket named nba-data manually.

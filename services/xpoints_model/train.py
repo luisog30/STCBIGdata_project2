@@ -12,13 +12,13 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 LOGGER = logging.getLogger("xpoints-train")
 
 
+# Hauria de posar 'http://minio:9000' com a valor per defecte, NO 'localhost'
 S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://minio:9000")
 S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "minioadmin")
 S3_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minioadmin")
-S3_BUCKET = os.getenv("S3_BUCKET", "shots-data")
-TRAIN_DATA_PATH = os.getenv("TRAIN_DATA_PATH", "processed/YEAR=2020/part.0.parquet")
+S3_BUCKET = os.getenv("S3_BUCKET", "nba-data")
+TRAIN_DATA_PATH = os.getenv("TRAIN_DATA_PATH", "processed/clean_data.parquet")
 MODEL_OUTPUT_PATH = os.getenv("MODEL_OUTPUT_PATH", "models/xpoints_model.pkl")
-
 
 FEATURE_COLUMNS = ["locationX", "locationY", "distance"]
 TARGET_COLUMN = "isScore"
