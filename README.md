@@ -1,175 +1,244 @@
-# STCBIGdata Project 2: End-to-End NBA Analytics Pipeline
+# STCBIGdata Project 2 — End-to-End NBA Analytics Pipeline 🏀📈
 
-This repository contains a complete Big Data engineering solution for analyzing NBA shot data. The system ingests data in real-time, processes it via a message broker, stores it in a Data Lake, trains a Machine Learning model, and visualizes the results via an interactive Dashboard.
+![Docker](https://img.shields.io/badge/Docker-Compose-blue)
+![Python](https://img.shields.io/badge/Python-3.9%2B-green)
+![FastAPI](https://img.shields.io/badge/FastAPI-API-success)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red)
+![Redis](https://img.shields.io/badge/Redis-Cache-critical)
+![MinIO](https://img.shields.io/badge/MinIO-S3%20Data%20Lake-orange)
 
-## 1. System Architecture
-
-The project is structured into four distinct phases, orchestrated via Docker Compose:
-
-### Phase 1: Ingestion & Messaging (MQTT)
-- **Ingest Service:** Connects to the Hugging Face dataset (`Vladislav/nba_dataset`), simulates a real-time data stream, and publishes raw JSON events to the MQTT topic `shots/raw`.
-- **Message Broker:** Eclipse Mosquitto manages the message queues using QoS 1 to ensure delivery.
-- **Preprocess Service:** Subscribes to `shots/raw`, performs data cleaning and standardization, and republishes enriched data to `shots/clean`.
-
-### Phase 2: Storage & ETL (MinIO)
-- **Data Lake:** MinIO provides local S3-compatible object storage.
-- **Bridge Script:** A local Python script subscribes to `shots/clean` and persists individual events as JSON files into the MinIO bucket `nba-data`.
-- **ETL Process:** A batch Python process extracts the JSON files, transforms the data (calculating metrics like clutch time and shot zones), and loads the consolidated dataset as a partitioned Parquet file (`processed/clean_data.parquet`).
-
-### Phase 3: Machine Learning (Scikit-Learn)
-- **Training Service:** A Dockerized container reads the Parquet file from MinIO.
-- **Model:** It trains a Logistic Regression model to calculate "Expected Points" (xP) based on shot distance and court coordinates.
-- **Artifact:** The trained model is serialized (`.pkl`) and saved back to MinIO for deployment.
-
-### Phase 4: Serving & Visualization
-- **Backend API:** A FastAPI service exposes endpoints for player metrics and shot predictions. It utilizes **Redis** to cache heavy aggregation queries.
-- **Dashboard:** A Streamlit application consumes the API to render interactive shot charts and efficiency comparisons.
+An end-to-end Big Data pipeline for NBA shot analytics: **real-time ingestion → MQTT processing → S3 Data Lake (MinIO) → batch ETL (Parquet) → ML training → API + dashboard**.
 
 ---
 
-## 2. Repository Structure
+## Contents
 
-.
-├── docker-compose.yml          # Orchestration configuration for all services
-├── requirements.txt            # Python dependencies for local ETL scripts
-├── services/
-│   ├── ingest/                 # Data ingestion logic (Hugging Face -> MQTT)
-│   ├── preprocess/             # Real-time cleaning logic (MQTT -> MQTT)
-│   ├── mqtt/                   # Mosquitto broker configuration
-│   ├── etl/                    # ETL scripts (MQTT -> MinIO -> Parquet)
-│   ├── xpoints_model/          # ML Training logic
-│   ├── api_backend/            # FastAPI Backend
-│   └── dashboard/              # Streamlit Frontend
-└── minio_data/                 # Local persistence for MinIO (Git ignored)
-
-## 3. Prerequisites
-
-Ensure the following are installed on your local machine:
-
-* **Docker Desktop** (Running Linux containers)
-* **Python 3.9+** (For executing local ETL scripts)
-* **Git**
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Repository Structure](#repository-structure)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Quickstart](#quickstart)
+- [Services & URLs](#services--urls)
+- [Outputs (MinIO)](#outputs-minio)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## 4. Execution Guide
+## Overview
 
-Follow these steps in order to stand up the full pipeline.
+This project processes NBA shot events and produces:
+- A **clean analytical dataset** in **Parquet**
+- A trained **Expected Points (xP)** model (**Logistic Regression**)
+- A **FastAPI** backend with cached metrics (**Redis**)
+- A **Streamlit** dashboard for interactive exploration
 
-### Step 1: Start Base Infrastructure
-Initialize the core services: MinIO, MQTT Broker, Redis, Preprocess, API, and Dashboard.
+---
 
+## Architecture
+
+### Phase 1 — Ingestion & Messaging (MQTT)
+- **ingest** reads `Vladislav/nba_dataset` and publishes raw events to `shots/raw`
+- **mqtt** (Eclipse Mosquitto) handles messaging with **QoS 1**
+- **preprocess** subscribes to `shots/raw`, cleans/enriches data, and republishes to `shots/clean`
+
+### Phase 2 — Storage & ETL (MinIO)
+- **MinIO** acts as a local S3 Data Lake
+- **bridge** subscribes to `shots/clean` and stores each event as a JSON object in bucket `nba-data`
+- **etl_process** reads JSON objects and produces a consolidated **Parquet** dataset
+
+### Phase 3 — Machine Learning (Scikit-Learn)
+- **xpoints_train** loads Parquet from MinIO, trains a Logistic Regression model (xP), and saves `models/xpoints_model.pkl`
+
+### Phase 4 — Serving & Visualization
+- **api_backend** serves metrics + predictions (with Redis caching)
+- **dashboard** (Streamlit) visualizes shot charts and comparisons
+
+> Topics:
+> - Raw: `shots/raw`
+> - Clean: `shots/clean`
+
+---
+
+## Repository Structure
+
+    .
+    ├── docker-compose.yml
+    ├── README.md
+    ├── .gitignore
+    └── services/
+        ├── ingest/          # Hugging Face -> MQTT (shots/raw)
+        ├── preprocess/      # MQTT -> MQTT cleaning (shots/clean)
+        ├── mqtt/            # Mosquitto config
+        ├── etl/             # bridge.py + etl_process.py
+        ├── xpoints_model/   # model training
+        ├── api_backend/     # FastAPI backend
+        └── dashboard/       # Streamlit dashboard
+
+> `minio_data/` is created locally to persist MinIO objects (git ignored).
+
+---
+
+## Tech Stack
+
+- **Docker Compose** — orchestration
+- **Eclipse Mosquitto (MQTT)** — message broker (QoS 1)
+- **MinIO** — S3-compatible Data Lake
+- **Pandas** — ETL processing
+- **Parquet (pyarrow/fastparquet)** — analytics format
+- **Scikit-Learn** — Expected Points model
+- **FastAPI** — metrics & predictions API
+- **Redis** — caching heavy aggregations
+- **Streamlit** — interactive dashboard
+
+---
+
+## Prerequisites
+
+- **Docker Desktop** (Linux containers)
+- **Python 3.9+** (only if you run the ETL locally)
+- **Git**
+
+---
+
+## Quickstart
+
+Run commands from the repository root.
+
+### 1) Start core services
+
+~~~bash
 docker compose up -d --build
+~~~
 
-### Step 2: Data Ingestion
-Run the ingestion job to populate the system with data. By default, this sends 5,000 events.
+This starts: **MinIO, MQTT, Redis, preprocess, api_backend, dashboard**.
 
+### 2) Publish NBA events (ingestion)
+
+~~~bash
 docker compose run --rm ingest
+~~~
 
-### Step 3: ETL Execution (Local)
-This step bridges the gap between the real-time stream and the analytical model using a containerized ETL process.
+By default, it publishes **5,000** events.
 
-#### Run the Bridge (MQTT to MinIO):
-   `docker compose --profile etl run etl_job python bridge.py`
+### 3) Persist clean events into MinIO + generate Parquet (ETL)
 
-#### Install dependencies:
-`pip install -r requirements.txt`
+Choose one option:
 
-#### Run the Bridge (MQTT to MinIO):
-This script listens for MQTT messages and saves them as JSON.
+#### Option A — Run ETL locally (recommended)
 
-`python services/etl/bridge.py`
+1) Install ETL dependencies:
+~~~bash
+pip install -r services/etl/requirements.txt
+~~~
 
-Keep this running while Ingestion (Step 2) is active. Once data is saved, verify files in MinIO and stop with Ctrl+C.
+2) Run the bridge (MQTT → MinIO JSON):
+~~~bash
+python services/etl/bridge.py
+~~~
 
-#### Run the ETL Processor:
-This script converts the JSON files into a clean Parquet file.
+Keep it running while Step 2 is active. Stop with `Ctrl + C` once enough JSON objects are stored.
 
-`python services/etl/etl_process.py`
+3) Run the ETL processor (MinIO JSON → Parquet):
+~~~bash
+python services/etl/etl_process.py
+~~~
 
-Expected Output: "EXIT: Data processed and saved to processed/clean_data.parquet"
+Expected output includes:
+- `EXIT: Data processed and saved to processed/clean_data.parquet`
 
-### Step 4: Model Training
-Train the Machine Learning model using the Parquet file generated in Step 3.
+#### Option B — Run the bridge inside Docker (profile: etl)
 
-`docker compose --profile train up xpoints_train`
+~~~bash
+docker compose --profile etl run --rm etl_job python bridge.py
+~~~
 
-Note: This container will exit automatically once the model (xpoints_model.pkl) is saved to MinIO.
+### 4) Train the xPoints model (profile: train)
 
-### Step 5: Access Applications
-The system is now fully operational. Access the services via your browser:
+~~~bash
+docker compose --profile train up --build xpoints_train
+~~~
 
-Dashboard (Streamlit): `http://localhost:8501`
-MinIO Console: `http://localhost:9001`
-  Credentials: `minioadmin / minioadmin`
+The container exits automatically once the model is saved into MinIO.
 
-API Documentation: `http://localhost:8000/docs`
+---
 
-## 5. Configuration Reference
-The system behavior is controlled via environment variables in docker-compose.yml.
+## Services & URLs
 
-### Ingestion Settings
-MAX_EVENTS: Number of shots to process (Default: 5000). Increase this for a larger dataset.
+| Service | URL | Notes |
+|---|---|---|
+| Streamlit Dashboard | http://localhost:8501 | UI for analytics |
+| FastAPI Docs (Swagger) | http://localhost:8000/docs | Test endpoints |
+| MinIO Console | http://localhost:9001 | S3 browser |
+| MinIO S3 Endpoint | http://localhost:9000 | Used by services |
+| MQTT Broker | localhost:1883 | Mosquitto |
 
-SLEEP_MS: Artificial delay between messages (milliseconds). Set to >0 to visualize real-time flow.
+MinIO credentials:
+- **user:** `minioadmin`
+- **password:** `minioadmin`
 
-HF_STREAMING: Set to "1" to stream data without downloading the full dataset locally.
+---
 
-### MQTT Settings
-TOPIC_RAW: Topic for initial data (shots/raw).
+## Outputs (MinIO)
 
-TOPIC_CLEAN: Topic for processed data (shots/clean).
+All project artifacts are stored in bucket **`nba-data`**:
 
-MQTT_QOS: Quality of Service level (Default: 1).
+- Raw clean events as JSON objects (from bridge)
+- Parquet dataset:
+  - `processed/clean_data.parquet`
+- Trained model:
+  - `models/xpoints_model.pkl`
 
-### API & Cache Settings
-CACHE_TTL_SECONDS: Duration to hold player metrics in Redis (Default: 600s).
+---
 
-MODEL_PATH: Location of the model file within the bucket.
+## Configuration
 
-## 6. Data Schema
-### Clean Topic (shots/clean)
-The Preprocess service normalizes data into the following schema:
+Configuration is defined in `docker-compose.yml` via environment variables.
 
-Identifiers: `event_id`, `gameId`, `personId`, `playerName`.
+### Ingestion (`ingest`)
+- `HF_DATASET` (default: `Vladislav/nba_dataset`)
+- `HF_SPLIT` (default: `train`)
+- `HF_STREAMING` (default: `"1"`)
+- `MAX_EVENTS` (default: `5000`)
+- `SLEEP_MS` (default: `0`)
+- `TOPIC_RAW` (default: `shots/raw`)
+- `MQTT_QOS` (default: `1`)
 
-Temporal: `YEAR`, `period`, `clock`, `timeActual`.
+### Preprocess (`preprocess`)
+- `TOPIC_RAW` (default: `shots/raw`)
+- `TOPIC_CLEAN` (default: `shots/clean`)
+- `MQTT_QOS` (default: `1`)
 
-Spatial: `x`, `y` (Court coordinates), `shotDistance`, `area`, `zone`.
+### Training (`xpoints_train`)
+- `S3_ENDPOINT` (default: `http://minio:9000`)
+- `S3_BUCKET` (default: `nba-data`)
+- `TRAIN_DATA_PATH` (default: `processed/clean_data.parquet`)
+- `MODEL_OUTPUT_PATH` (default: `models/xpoints_model.pkl`)
 
-Context: `shotResult` (Made/Missed), `shot_value` (2/3), `is_clutch`, `scoreMargin`.
+### API (`api_backend`)
+- `DATA_PATH` (default: `processed/clean_data.parquet`)
+- `MODEL_PATH` (default: `models/xpoints_model.pkl`)
+- `REDIS_URL` (default: `redis://redis:6379/0`)
+- `CACHE_TTL_SECONDS` (default: `600`)
 
-### Parquet Output (processed/clean_data.parquet)
-The ETL process creates a columnar file optimized for ML, renaming specific columns to match the training script requirements:
+---
 
-locationX (Mapped from x)
+## Troubleshooting
 
-locationY (Mapped from y)
+### Dashboard is empty
+- Make sure Parquet and model exist in MinIO:
+  - `processed/clean_data.parquet`
+  - `models/xpoints_model.pkl`
+- Re-run ETL (Step 3) and Training (Step 4).
 
-distance (Mapped from shotDistance)
+### Ingestion stops too early
+- Increase `MAX_EVENTS` in `docker-compose.yml`.
 
-isScore (Binary target variable derived from shotResult)
+### Port conflicts (1883, 6379, 8000, 8501, 9000, 9001)
+- Stop local services using those ports or change mappings in `docker-compose.yml`.
 
-## 7. Troubleshooting
+### MinIO bucket does not exist
+- Create `nba-data` in the MinIO console (http://localhost:9001) or rerun the bridge.
 
-### Issue: Dashboard shows empty charts.
-
-Cause: The ML model or data file is missing.
-
-Solution: Ensure you successfully ran python services/etl/etl_process.py (Step 3) and the xpoints_train container (Step 4). Check MinIO to confirm clean_data.parquet and xpoints_model.pkl exist in the nba-data bucket.
-
-### Issue: Connection Refused on Port 1883 or 5432.
-
-Cause: You have a local instance of Mosquitto or Postgres/Redis running.
-
-Solution: Stop local services or modify the port mapping in docker-compose.yml.
-
-### Issue: Ingestion stops immediately.
-
-Cause: MAX_EVENTS might be set too low.
-
-Solution: Check the docker-compose.yml file and ensure MAX_EVENTS is set to at least 1000.
-
-### Issue: "MinIO bucket does not exist".
-
-Solution: The bridge.py script usually creates the bucket automatically. If it fails, log in to the MinIO console (localhost:9001) and create a bucket named nba-data manually.
+---
