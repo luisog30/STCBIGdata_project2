@@ -71,40 +71,40 @@ This step bridges the gap between the real-time stream and the analytical model 
 
 #### Run the Bridge (MQTT to MinIO):
    ```bash
-   docker compose --profile etl run etl_job python bridge.py
+   docker compose --profile etl run etl_job python bridge.py````
 
 #### Install dependencies:
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 #### Run the Bridge (MQTT to MinIO):
 This script listens for MQTT messages and saves them as JSON.
 
-python services/etl/bridge.py
+`python services/etl/bridge.py`
 
 Keep this running while Ingestion (Step 2) is active. Once data is saved, verify files in MinIO and stop with Ctrl+C.
 
 #### Run the ETL Processor:
 This script converts the JSON files into a clean Parquet file.
 
-python services/etl/etl_process.py
+`python services/etl/etl_process.py`
 
 Expected Output: "EXIT: Data processed and saved to processed/clean_data.parquet"
 
 ### Step 4: Model Training
 Train the Machine Learning model using the Parquet file generated in Step 3.
 
-docker compose --profile train up xpoints_train
+`docker compose --profile train up xpoints_train`
 
 Note: This container will exit automatically once the model (xpoints_model.pkl) is saved to MinIO.
 
 ### Step 5: Access Applications
 The system is now fully operational. Access the services via your browser:
 
-Dashboard (Streamlit): http://localhost:8501
-MinIO Console: http://localhost:9001
-  Credentials: minioadmin / minioadmin
+Dashboard (Streamlit): `http://localhost:8501`
+MinIO Console: `http://localhost:9001`
+  Credentials: `minioadmin / minioadmin`
 
-API Documentation: http://localhost:8000/docs
+API Documentation: `http://localhost:8000/docs`
 
 ## 5. Configuration Reference
 The system behavior is controlled via environment variables in docker-compose.yml.
@@ -132,13 +132,13 @@ MODEL_PATH: Location of the model file within the bucket.
 ### Clean Topic (shots/clean)
 The Preprocess service normalizes data into the following schema:
 
-Identifiers: event_id, gameId, personId, playerName.
+Identifiers: `event_id`, `gameId`, `personId`, `playerName`.
 
-Temporal: YEAR, period, clock, timeActual.
+Temporal: `YEAR`, `period`, `clock`, `timeActual`.
 
-Spatial: x, y (Court coordinates), shotDistance, area, zone.
+Spatial: `x`, `y` (Court coordinates), `shotDistance`, `area`, `zone`.
 
-Context: shotResult (Made/Missed), shot_value (2/3), is_clutch, scoreMargin.
+Context: `shotResult` (Made/Missed), `shot_value` (2/3), `is_clutch`, `scoreMargin`.
 
 ### Parquet Output (processed/clean_data.parquet)
 The ETL process creates a columnar file optimized for ML, renaming specific columns to match the training script requirements:
