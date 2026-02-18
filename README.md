@@ -71,7 +71,7 @@ This step bridges the gap between the real-time stream and the analytical model 
 
 #### Run the Bridge (MQTT to MinIO):
    ```bash
-   docker compose --profile etl run etl_job python bridge.py````
+   docker compose --profile etl run etl_job python bridge.py```
 
 #### Install dependencies:
 `pip install -r requirements.txt`
