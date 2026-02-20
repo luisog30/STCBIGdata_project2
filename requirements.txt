@@ -1,5 +1,0 @@
-dask[dataframe]
-pandas
-s3fs
-pyarrow
-minio

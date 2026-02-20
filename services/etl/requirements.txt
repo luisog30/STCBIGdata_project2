@@ -1,0 +1,6 @@
+pandas
+minio
+paho-mqtt
+pyarrow
+fastparquet
+scikit-learn
