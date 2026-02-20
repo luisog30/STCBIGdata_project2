@@ -9,6 +9,8 @@
 
 An end-to-end Big Data pipeline for NBA shot analytics: **real-time ingestion → MQTT processing → S3 Data Lake (MinIO) → batch ETL (Parquet) → ML training → API + dashboard**.
 
+> Nota: la parte API/dashboard puede funcionar con un parquet ya existente en `shots-data/processed/YEAR=2020/part.0.parquet` (configuración actual del compose) o con el parquet generado por el ETL (`nba-data/processed/clean_data.parquet`) ajustando variables de entorno.
+
 ---
 
 ## Contents
@@ -54,6 +56,10 @@ This project processes NBA shot events and produces:
 ### Phase 4 — Serving & Visualization
 - **api_backend** serves metrics + predictions (with Redis caching)
 - **dashboard** (Streamlit) visualizes shot charts and comparisons
+- Endpoints principales del backend:
+  - `GET /health`
+  - `POST /predict`
+  - `GET /players/{player_id}/metrics`
 
 > Topics:
 > - Raw: `shots/raw`
@@ -90,7 +96,7 @@ This project processes NBA shot events and produces:
 - **Scikit-Learn** — Expected Points model
 - **FastAPI** — metrics & predictions API
 - **Redis** — caching heavy aggregations
-- **Streamlit** — interactive dashboard
+- **Streamlit** — interactive dashboard with API fallback/retry support
 
 ---
 
@@ -113,6 +119,8 @@ docker compose up -d --build
 ~~~
 
 This starts: **MinIO, MQTT, Redis, preprocess, api_backend, dashboard**.
+
+Si vas a usar la API/dashboard con el dataset de `shots-data`, asegúrate de que el objeto `processed/YEAR=2020/part.0.parquet` exista en MinIO.
 
 ### 2) Publish NBA events (ingestion)
 
@@ -182,13 +190,19 @@ MinIO credentials:
 
 ## Outputs (MinIO)
 
-All project artifacts are stored in bucket **`nba-data`**:
+Depending on your flow, artifacts can be in different buckets:
 
-- Raw clean events as JSON objects (from bridge)
-- Parquet dataset:
-  - `processed/clean_data.parquet`
-- Trained model:
-  - `models/xpoints_model.pkl`
+- **ETL flow (bridge + etl_process):**
+  - Bucket: `nba-data`
+  - Outputs:
+    - JSON events (bridge)
+    - `processed/clean_data.parquet`
+
+- **API/ML compose defaults (current `docker-compose.yml`):**
+  - Bucket: `shots-data`
+  - Inputs/outputs:
+    - `processed/YEAR=2020/part.0.parquet`
+    - `models/xpoints_model.pkl`
 
 ---
 
@@ -212,25 +226,33 @@ Configuration is defined in `docker-compose.yml` via environment variables.
 
 ### Training (`xpoints_train`)
 - `S3_ENDPOINT` (default: `http://minio:9000`)
-- `S3_BUCKET` (default: `nba-data`)
-- `TRAIN_DATA_PATH` (default: `processed/clean_data.parquet`)
+- `S3_BUCKET` (default: `shots-data`)
+- `TRAIN_DATA_PATH` (default: `processed/YEAR=2020/part.0.parquet`)
 - `MODEL_OUTPUT_PATH` (default: `models/xpoints_model.pkl`)
 
 ### API (`api_backend`)
-- `DATA_PATH` (default: `processed/clean_data.parquet`)
+- `S3_BUCKET` (default: `shots-data`)
+- `DATA_PATH` (default: `processed/YEAR=2020/part.0.parquet`)
 - `MODEL_PATH` (default: `models/xpoints_model.pkl`)
 - `REDIS_URL` (default: `redis://redis:6379/0`)
 - `CACHE_TTL_SECONDS` (default: `600`)
+
+### Dashboard (`dashboard`)
+- `API_BASE_URL` (default: `http://api_backend:8000`)
+- `FALLBACK_API_BASE_URL` (default: auto-resolved to host endpoint)
+- `API_REQUEST_RETRIES` (default in app: `3`, compose sets `5`)
+- `API_REQUEST_RETRY_SLEEP` (default in app: `1`)
 
 ---
 
 ## Troubleshooting
 
 ### Dashboard is empty
-- Make sure Parquet and model exist in MinIO:
-  - `processed/clean_data.parquet`
+- Make sure Parquet and model exist in the bucket used by API/training (`shots-data` by default in compose):
+  - `processed/YEAR=2020/part.0.parquet`
   - `models/xpoints_model.pkl`
-- Re-run ETL (Step 3) and Training (Step 4).
+- If you generated parquet with ETL in `nba-data/processed/clean_data.parquet`, adjust `S3_BUCKET`/`DATA_PATH`/`TRAIN_DATA_PATH` accordingly in `docker-compose.yml`.
+- Re-run training (Step 4) if `/predict` fails due to missing model artifact.
 
 ### Ingestion stops too early
 - Increase `MAX_EVENTS` in `docker-compose.yml`.
@@ -239,6 +261,6 @@ Configuration is defined in `docker-compose.yml` via environment variables.
 - Stop local services using those ports or change mappings in `docker-compose.yml`.
 
 ### MinIO bucket does not exist
-- Create `nba-data` in the MinIO console (http://localhost:9001) or rerun the bridge.
+- Create the bucket you are using (`shots-data` for current API/training defaults, or `nba-data` for ETL flow) in MinIO console (http://localhost:9001).
 
 ---
