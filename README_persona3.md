@@ -9,7 +9,7 @@ This setup adds an isolated machine-learning/API/dashboard stack on top of the e
   - `POST /predict`
   - `GET /players/{player_id}/metrics` (cached in Redis)
 - `services/dashboard`: Streamlit UI consuming API data (KPI + compare + shot-chart placeholder).
-- `docker-compose.persona3.yml`: compose override with `redis`, `api_backend`, `dashboard`, and optional `xpoints_train` profile.
+- `docker-compose.yml`: incluye `redis`, `api_backend`, `dashboard` y el perfil opcional `xpoints_train`.
 
 ## Prerequisites
 - Docker + Docker Compose plugin.
@@ -25,12 +25,12 @@ docker compose up -d minio
 This writes `shots-data/models/xpoints_model.pkl` to MinIO.
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.persona3.yml --profile train up --build xpoints_train
+docker compose --profile train up --build xpoints_train
 ```
 
 ## 3) Start API + Dashboard + Redis
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.persona3.yml up --build -d redis api_backend dashboard
+docker compose up --build -d redis api_backend dashboard
 ```
 
 ## 4) Test endpoints
