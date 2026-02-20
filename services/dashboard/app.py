@@ -4,29 +4,46 @@ import pandas as pd
 import requests
 import streamlit as st
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-FALLBACK_API_BASE_URL = os.getenv("FALLBACK_API_BASE_URL", "http://localhost:8000")
+
+def _default_api_base_url() -> str:
+    # Docker containers can resolve `api_backend` via compose DNS.
+    if os.path.exists('/.dockerenv'):
+        return 'http://api_backend:8000'
+    # Host execution should call published localhost port.
+    return 'http://localhost:8000'
+
+
+API_BASE_URL = os.getenv("API_BASE_URL", _default_api_base_url())
+FALLBACK_API_BASE_URL = os.getenv(
+    "FALLBACK_API_BASE_URL",
+    "http://localhost:8000" if "api_backend" in API_BASE_URL else "http://api_backend:8000",
+)
 
 
 def _request_with_fallback(method: str, path: str, **kwargs):
-    primary = f"{API_BASE_URL}{path}"
-    try:
-        response = requests.request(method, primary, timeout=15, **kwargs)
-        response.raise_for_status()
-        return response
-    except Exception:
-        if API_BASE_URL == FALLBACK_API_BASE_URL:
-            raise
-        fallback = f"{FALLBACK_API_BASE_URL}{path}"
-        response = requests.request(method, fallback, timeout=15, **kwargs)
-        response.raise_for_status()
-        return response
+    endpoints = [API_BASE_URL]
+    if FALLBACK_API_BASE_URL not in endpoints:
+        endpoints.append(FALLBACK_API_BASE_URL)
+
+    last_error = None
+    for base_url in endpoints:
+        try:
+            response = requests.request(method, f"{base_url}{path}", timeout=15, **kwargs)
+            response.raise_for_status()
+            return response
+        except Exception as exc:  # noqa: BLE001
+            last_error = exc
+
+    raise RuntimeError(f"All API endpoints failed ({endpoints}): {last_error}")
+
 
 st.set_page_config(page_title="Persona 3 Dashboard", layout="wide")
 st.title("Persona 3 - xPoints Dashboard")
 
 with st.sidebar:
     st.header("Controls")
+    st.caption(f"API primary: {API_BASE_URL}")
+    st.caption(f"API fallback: {FALLBACK_API_BASE_URL}")
     player_a = st.number_input("Player A ID", min_value=1, value=2544, step=1)
     player_b = st.number_input("Player B ID", min_value=1, value=201939, step=1)
 
