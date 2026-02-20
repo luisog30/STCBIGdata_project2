@@ -1,4 +1,5 @@
 import os
+import time
 
 import pandas as pd
 import requests
@@ -13,11 +14,17 @@ def _default_api_base_url() -> str:
     return 'http://localhost:8000'
 
 
+def _default_fallback_api_base_url(primary: str) -> str:
+    if "api_backend" in primary:
+        # Inside Docker, localhost points to the dashboard container itself.
+        return "http://host.docker.internal:8000"
+    return "http://api_backend:8000"
+
+
 API_BASE_URL = os.getenv("API_BASE_URL", _default_api_base_url())
-FALLBACK_API_BASE_URL = os.getenv(
-    "FALLBACK_API_BASE_URL",
-    "http://localhost:8000" if "api_backend" in API_BASE_URL else "http://api_backend:8000",
-)
+FALLBACK_API_BASE_URL = os.getenv("FALLBACK_API_BASE_URL", _default_fallback_api_base_url(API_BASE_URL))
+REQUEST_RETRIES = int(os.getenv("API_REQUEST_RETRIES", "3"))
+REQUEST_RETRY_SLEEP = float(os.getenv("API_REQUEST_RETRY_SLEEP", "1.0"))
 
 
 def _request_with_fallback(method: str, path: str, **kwargs):
@@ -27,12 +34,15 @@ def _request_with_fallback(method: str, path: str, **kwargs):
 
     last_error = None
     for base_url in endpoints:
-        try:
-            response = requests.request(method, f"{base_url}{path}", timeout=15, **kwargs)
-            response.raise_for_status()
-            return response
-        except Exception as exc:  # noqa: BLE001
-            last_error = exc
+        for attempt in range(1, REQUEST_RETRIES + 1):
+            try:
+                response = requests.request(method, f"{base_url}{path}", timeout=15, **kwargs)
+                response.raise_for_status()
+                return response
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+                if attempt < REQUEST_RETRIES:
+                    time.sleep(REQUEST_RETRY_SLEEP)
 
     raise RuntimeError(f"All API endpoints failed ({endpoints}): {last_error}")
 

@@ -36,6 +36,9 @@ services:
     container_name: nba_dashboard
     environment:
       API_BASE_URL: http://api_backend:8000
+      FALLBACK_API_BASE_URL: http://host.docker.internal:8000
+      API_REQUEST_RETRIES: 5
+      API_REQUEST_RETRY_SLEEP: 1
     depends_on:
       - api_backend
     ports:

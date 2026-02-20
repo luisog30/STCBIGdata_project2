@@ -50,4 +50,5 @@ curl http://localhost:8000/players/2544/metrics
 ## Notes
 - API and trainer both read/write using MinIO S3-compatible access.
 - Redis is used only as cache for heavy `player metrics` aggregation responses.
+- Dashboard auto-resolves API host for both Docker (`api_backend`) and host (`localhost`) modes, with retries and fallback endpoint support.
 - If `/predict` fails, run training step first to generate the model artifact.
