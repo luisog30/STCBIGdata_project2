@@ -20,7 +20,7 @@ MODEL_PATH = os.getenv("MODEL_PATH", "models/xpoints_model.pkl")
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))
 
-app = FastAPI(title="Persona 3 API", version="0.2.0")
+app = FastAPI(title="Persona 3 API", version="0.3.0")
 
 
 class PredictRequest(BaseModel):
@@ -49,6 +49,31 @@ def model_uri() -> str:
     return f"s3://{S3_BUCKET}/{MODEL_PATH}"
 
 
+def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    normalized = df.copy()
+
+    alias_map = {
+        "playerId": ["playerId", "personId"],
+        "locationX": ["locationX", "x"],
+        "locationY": ["locationY", "y"],
+        "distance": ["distance", "shotDistance"],
+        "isScore": ["isScore"],
+    }
+
+    for canonical, options in alias_map.items():
+        if canonical in normalized.columns:
+            continue
+        for option in options:
+            if option in normalized.columns:
+                normalized[canonical] = normalized[option]
+                break
+
+    if "isScore" not in normalized.columns and "shotResult" in normalized.columns:
+        normalized["isScore"] = (normalized["shotResult"].astype(str).str.lower() == "made").astype("int8")
+
+    return normalized
+
+
 @lru_cache
 def redis_client() -> redis.Redis:
     return redis.Redis.from_url(REDIS_URL, decode_responses=True)
@@ -56,7 +81,8 @@ def redis_client() -> redis.Redis:
 
 @lru_cache
 def load_dataset() -> pd.DataFrame:
-    return pd.read_parquet(data_uri(), storage_options=s3_storage_options())
+    raw = pd.read_parquet(data_uri(), storage_options=s3_storage_options())
+    return normalize_columns(raw)
 
 
 @lru_cache
@@ -116,7 +142,7 @@ def player_metrics(player_id: int) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Could not load dataset: {exc}") from exc
 
     if "playerId" not in df.columns:
-        raise HTTPException(status_code=500, detail="Dataset does not contain playerId")
+        raise HTTPException(status_code=500, detail="Dataset does not contain playerId/personId")
 
     player_df = df[df["playerId"] == player_id].copy()
     if player_df.empty:

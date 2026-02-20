@@ -12,7 +12,6 @@ from sklearn.linear_model import LogisticRegression
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 LOGGER = logging.getLogger("xpoints-train")
 
-
 S3_ENDPOINT = os.getenv("S3_ENDPOINT", "http://minio:9000")
 S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "minioadmin")
 S3_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minioadmin")
@@ -40,14 +39,39 @@ def s3_storage_options() -> dict:
     }
 
 
+def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    normalized = df.copy()
+
+    alias_map = {
+        "locationX": ["locationX", "x"],
+        "locationY": ["locationY", "y"],
+        "distance": ["distance", "shotDistance"],
+        "isScore": ["isScore"],
+    }
+
+    for canonical, options in alias_map.items():
+        if canonical in normalized.columns:
+            continue
+        for option in options:
+            if option in normalized.columns:
+                normalized[canonical] = normalized[option]
+                break
+
+    if "isScore" not in normalized.columns and "shotResult" in normalized.columns:
+        normalized["isScore"] = (normalized["shotResult"].astype(str).str.lower() == "made").astype("int8")
+
+    return normalized
+
+
 def prepare_training_frame(df: pd.DataFrame) -> Optional[pd.DataFrame]:
+    normalized = normalize_columns(df)
     required_columns = set(FEATURE_COLUMNS + [TARGET_COLUMN])
-    missing = required_columns.difference(df.columns)
+    missing = required_columns.difference(normalized.columns)
     if missing:
         LOGGER.error("Missing required columns in training data: %s", sorted(missing))
         return None
 
-    frame = df[FEATURE_COLUMNS + [TARGET_COLUMN]].dropna().copy()
+    frame = normalized[FEATURE_COLUMNS + [TARGET_COLUMN]].dropna().copy()
     if frame.empty:
         LOGGER.error("Training frame is empty after dropping null values")
         return None
@@ -70,10 +94,7 @@ def main() -> None:
         "model": model,
         "features": FEATURE_COLUMNS,
         "target": TARGET_COLUMN,
-        "meta": {
-            "rows": int(len(frame)),
-            "source": parquet_uri(),
-        },
+        "meta": {"rows": int(len(frame)), "source": parquet_uri()},
     }
 
     buffer = io.BytesIO()
