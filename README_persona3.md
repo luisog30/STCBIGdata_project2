@@ -14,7 +14,7 @@ This setup adds an isolated machine-learning/API/dashboard stack on top of the e
 ## Prerequisites
 - Docker + Docker Compose plugin.
 - Existing parquet data available in MinIO bucket path:
-  - `shots-data/processed/YEAR=2020/part.0.parquet`
+  - `nba-data/processed/clean_data.parquet`
 
 ## 1) Start base infrastructure
 ```bash
@@ -22,7 +22,7 @@ docker compose up -d minio
 ```
 
 ## 2) Train model artifact (optional profile)
-This writes `shots-data/models/xpoints_model.pkl` to MinIO.
+This writes `nba-data/models/xpoints_model.pkl` to MinIO.
 
 ```bash
 docker compose --profile train up --build xpoints_train
