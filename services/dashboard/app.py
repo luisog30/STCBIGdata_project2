@@ -1,23 +1,65 @@
 import os
+import time
 
 import pandas as pd
 import requests
 import streamlit as st
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://api_backend:8000")
+
+def _default_api_base_url() -> str:
+    # Docker containers can resolve `api_backend` via compose DNS.
+    if os.path.exists('/.dockerenv'):
+        return 'http://api_backend:8000'
+    # Host execution should call published localhost port.
+    return 'http://localhost:8000'
+
+
+def _default_fallback_api_base_url(primary: str) -> str:
+    if "api_backend" in primary:
+        # Inside Docker, localhost points to the dashboard container itself.
+        return "http://host.docker.internal:8000"
+    return "http://api_backend:8000"
+
+
+API_BASE_URL = os.getenv("API_BASE_URL", _default_api_base_url())
+FALLBACK_API_BASE_URL = os.getenv("FALLBACK_API_BASE_URL", _default_fallback_api_base_url(API_BASE_URL))
+REQUEST_RETRIES = int(os.getenv("API_REQUEST_RETRIES", "3"))
+REQUEST_RETRY_SLEEP = float(os.getenv("API_REQUEST_RETRY_SLEEP", "1.0"))
+
+
+def _request_with_fallback(method: str, path: str, **kwargs):
+    endpoints = [API_BASE_URL]
+    if FALLBACK_API_BASE_URL not in endpoints:
+        endpoints.append(FALLBACK_API_BASE_URL)
+
+    last_error = None
+    for base_url in endpoints:
+        for attempt in range(1, REQUEST_RETRIES + 1):
+            try:
+                response = requests.request(method, f"{base_url}{path}", timeout=15, **kwargs)
+                response.raise_for_status()
+                return response
+            except Exception as exc:  # noqa: BLE001
+                last_error = exc
+                if attempt < REQUEST_RETRIES:
+                    time.sleep(REQUEST_RETRY_SLEEP)
+
+    raise RuntimeError(f"All API endpoints failed ({endpoints}): {last_error}")
+
 
 st.set_page_config(page_title="Persona 3 Dashboard", layout="wide")
 st.title("Persona 3 - xPoints Dashboard")
 
 with st.sidebar:
     st.header("Controls")
+    st.caption(f"API primary: {API_BASE_URL}")
+    st.caption(f"API fallback: {FALLBACK_API_BASE_URL}")
     player_a = st.number_input("Player A ID", min_value=1, value=2544, step=1)
     player_b = st.number_input("Player B ID", min_value=1, value=201939, step=1)
 
 
 def get_player_metrics(player_id: int) -> dict:
-    response = requests.get(f"{API_BASE_URL}/players/{player_id}/metrics", timeout=15)
-    response.raise_for_status()
+    response = _request_with_fallback("GET", f"/players/{player_id}/metrics")
     return response.json()
 
 
@@ -39,7 +81,7 @@ def show_player_card(player_id: int, column) -> None:
         if shot_points:
             st.caption("Basic shot chart placeholder")
             shot_df = pd.DataFrame(shot_points)
-            st.scatter_chart(shot_df, x="locationX", y="locationY", color="isScore")
+            st.scatter_chart(shot_df[["locationX", "locationY"]], x="locationX", y="locationY")
         else:
             st.info("No x/y shot data available for this player.")
 
@@ -56,12 +98,11 @@ pdist = st.slider("distance", min_value=0, max_value=40, value=12)
 
 if st.button("Predict make probability"):
     try:
-        result = requests.post(
-            f"{API_BASE_URL}/predict",
+        result = _request_with_fallback(
+            "POST",
+            "/predict",
             json={"locationX": px, "locationY": py, "distance": pdist},
-            timeout=15,
         )
-        result.raise_for_status()
         st.success(f"Predicted probability: {result.json()['probability']:.3f}")
     except Exception as exc:  # noqa: BLE001
         st.error(f"Prediction failed: {exc}")
