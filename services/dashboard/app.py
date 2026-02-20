@@ -4,7 +4,23 @@ import pandas as pd
 import requests
 import streamlit as st
 
-API_BASE_URL = os.getenv("API_BASE_URL", "http://api_backend:8000")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+FALLBACK_API_BASE_URL = os.getenv("FALLBACK_API_BASE_URL", "http://localhost:8000")
+
+
+def _request_with_fallback(method: str, path: str, **kwargs):
+    primary = f"{API_BASE_URL}{path}"
+    try:
+        response = requests.request(method, primary, timeout=15, **kwargs)
+        response.raise_for_status()
+        return response
+    except Exception:
+        if API_BASE_URL == FALLBACK_API_BASE_URL:
+            raise
+        fallback = f"{FALLBACK_API_BASE_URL}{path}"
+        response = requests.request(method, fallback, timeout=15, **kwargs)
+        response.raise_for_status()
+        return response
 
 st.set_page_config(page_title="Persona 3 Dashboard", layout="wide")
 st.title("Persona 3 - xPoints Dashboard")
@@ -16,8 +32,7 @@ with st.sidebar:
 
 
 def get_player_metrics(player_id: int) -> dict:
-    response = requests.get(f"{API_BASE_URL}/players/{player_id}/metrics", timeout=15)
-    response.raise_for_status()
+    response = _request_with_fallback("GET", f"/players/{player_id}/metrics")
     return response.json()
 
 
@@ -56,12 +71,11 @@ pdist = st.slider("distance", min_value=0, max_value=40, value=12)
 
 if st.button("Predict make probability"):
     try:
-        result = requests.post(
-            f"{API_BASE_URL}/predict",
+        result = _request_with_fallback(
+            "POST",
+            "/predict",
             json={"locationX": px, "locationY": py, "distance": pdist},
-            timeout=15,
         )
-        result.raise_for_status()
         st.success(f"Predicted probability: {result.json()['probability']:.3f}")
     except Exception as exc:  # noqa: BLE001
         st.error(f"Prediction failed: {exc}")
